@@ -1,3 +1,4 @@
+~$TM *.xlsx
 data/rds/*.rds
 data/raw_data/Fortune_500_report/*
 # History files
