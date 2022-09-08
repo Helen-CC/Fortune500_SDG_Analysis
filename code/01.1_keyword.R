@@ -1,42 +1,88 @@
+rm(list = ls())
+# Load necessary packages
 library(tidyverse)
 library(readxl)
 library(clipr)
 
-df_keyword <- readxl::read_excel("UoA-SDG-Keyword-List-Ver.-1.1.xlsx", sheet = 2) %>% select(1:3) %>%
-  rename(word=1, word2=2, sdg=3)
+# Setup working directory
+setwd("/Volumes/TOSHIBA3T/2022-09-07/Fortune500_SDG_Analysis")
+getwd()
 
+# Load keyword dictionary
+df_keyword <- readxl::read_excel("./data/raw_data/UoA-SDG-Keyword-List-Ver.-1.1.xlsx", 
+                                 sheet = "keyword") %>% 
+  rename(word = `SDG Keywords`, word2 = `Alternatives`, sdg = `SDG`)
 
-df_keyword_unnest <- 
-df_keyword %>% select(word, sdg) %>%
-  bind_rows(df_keyword %>% select(word2, sdg) %>% filter(!is.na(word2)) %>% rename(word = word2)) %>%
-  arrange(sdg) %>% 
-  select(sdg, word) %>%
+# Combine the 2 colums -> use keywords in both columns at once
+df_keyword_unnest <- df_keyword %>% 
+  select(sdg, word) %>% 
+  bind_rows(df_keyword %>% 
+              select(word2, sdg) %>% 
+              drop_na() %>% 
+              rename(word = word2)
+            ) %>% 
+  # sort the rows in SDG order
+  mutate(SDG_order = str_extract(sdg, pattern = "\\d+"),
+         SDG_order = as.numeric(SDG_order),
+         ) %>% 
+  arrange(SDG_order) %>% 
+  select(-SDG_order) %>% 
+  # trim white spaces at both sides
+  mutate(word = str_trim(word, side = "both")) %>% 
+  # add regular expressions
   mutate(word = str_replace_all(word, "\\*", ".?")) %>%
   mutate(word = str_replace_all(word, " AND ", ".*?")) %>% #舉例 Economic Resource AND Access 在一個句子裡面同時出現，不一定要前後
   mutate(word = str_split(word, "; ")) %>% #把excel 裡面同一格有 分號; 的分開到不同row 如row 101
   unnest(c(word))
 
-#nspace 沒有space 的 下面space是有space 的
+# Create a dataframe of keywords without spaces -> nspace
 df_keyword_nspace <- df_keyword_unnest %>% 
-  filter(!str_detect(word," ")) %>%
+  filter(!str_detect(word, " ")) %>% # TODO: better change space into `\\s`
+  ## TODO: need to know the variable meaning
   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
-
+# Create a dataframe of keywords with spaces
 df_keyword_space <- df_keyword_unnest %>% 
   filter(str_detect(word," ")) %>%
   mutate(word = str_to_lower(word))
 
-df_bind <- df_keyword_nspace %>% bind_rows(df_keyword_space) %>%
+# ## The following code demonstrate that why `\s` is better than a single white space
+# df.test.s <- df_keyword_unnest %>% 
+#   filter(!str_detect(word, "\\s")) %>% 
+#   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
+#   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
+# df.test.space <- df_keyword_unnest %>% 
+#   filter(!str_detect(word, " ")) %>% 
+#   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
+#   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
+# x <- df.test.s$word
+# y <- df.test.space$word
+# setdiff(y, x)
+
+
+# Create a dataframe to merge the dataframe with and without spaces
+df_bind <- df_keyword_nspace %>% 
+  bind_rows(df_keyword_space) %>%
   mutate(word = str_trim(word, "both")) %>%
-  mutate(word = if_else(str_detect(word, "\\.\\*\\?"), word, str_c("\\b",word,"\\b"))) %>%
-  arrange(word) %>% 
-  select(sdg, word)
+  mutate(word = if_else(str_detect(word, "\\.\\*\\?"), 
+                        word, str_c("\\b",word,"\\b"))) %>%
+  # sort the rows in SDG order
+  mutate(SDG_order = str_extract(sdg, pattern = "\\d+"),
+         SDG_order = as.numeric(SDG_order),
+         ) %>% 
+  arrange(SDG_order) %>% 
+  select(sdg, word) 
+
+# clean up env
+rm(list=setdiff(ls(), "df_bind"))
 
 ### 有些要手動改
 #https://docs.google.com/spreadsheets/d/1fZdE9WcFYI_d_sD4BgBpI5D1QhOYlRngsuSEtB7w694/edit#gid=470532546
+# change `or` into `|`
 df_manual <- df_bind %>%
-  filter(str_detect(word, " or ")) %>%
-  mutate(word = str_replace_all(word, " or ", "|"))
+  filter(str_detect(word, "\\sor\\s")) %>%
+  mutate(word = str_replace_all(word, "\\sor\\s", "|"))
+
 df_manual %>% write_clip()
 df_manual_new <- read_clip() %>% as_tibble()
 df_manual_new_ok <- df_manual_new %>% separate(value, into = c("sdg","word","word_new"), sep = "\\t") %>% slice(-1) %>%
