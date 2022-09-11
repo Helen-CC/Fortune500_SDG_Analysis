@@ -2,7 +2,7 @@ rm(list = ls())
 # Load necessary packages
 library(tidyverse)
 library(readxl)
-# library(clipr)
+library(clipr)
 library(hash)
 
 # Setup working directory
