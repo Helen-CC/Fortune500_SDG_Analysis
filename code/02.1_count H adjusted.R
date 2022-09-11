@@ -3,16 +3,20 @@ library(tidyverse)
 library(tidytext)
 # library(clipr)
 library(stringi)
+
+# Load data
 df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 df_final_key_old <- read_rds("./data/rds/df_final_key.rds")
 
+# a comparison: check correctness
 setdiff(df_final_key$word, df_final_key_old$word)
 setdiff(df_final_key_old$word, df_final_key$word)
 
 # IO of annual reports
 # 這裡的path 要根據annual report 放的路徑改
 # (原)foldername <- list.files(path = "annual", pattern = '', full.names = T)
-foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
+foldername <- list.files(path = "./data/raw_data/Fortune_500_report/", 
+                         pattern = '', full.names = T)
 
 # make sure they are all folders(資料夾)
 #foldername <- foldername[!str_detect(foldername, "udpipe")]
@@ -20,14 +24,14 @@ foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.na
 #i <- 1
 
 #13-16 新寫的，以下是之前的，但根據我現在電腦本機路徑改
-foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
-foldername <- foldername[!str_detect(foldername, "udpipe")]
+# foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
+# foldername <- foldername[!str_detect(foldername, "udpipe")]
 filename <- list()
 i <- 1
 
-filename %>% as_tibble %>% write_clip()
-filename %>% write_rds("C:\\Users\\User\\Desktop\\Research Proposal\\Y3, Manuscript 1 TM\\Help_Ted Helen\\filename.rds")
-
+# filename %>% as_tibble %>% write_clip()
+# filename %>% write_rds("C:\\Users\\User\\Desktop\\Research Proposal\\Y3, Manuscript 1 TM\\Help_Ted Helen\\filename.rds")
+# filename <- read_rds("./data/rds/filename.rds")
 for (i in 1:length(foldername)) {
   print(i)
   inner_foldername_tmp <- list.files(path = foldername[i], pattern = '', full.names = T)
@@ -41,9 +45,14 @@ df_keyword_n <- tibble()
 index_now <- 1
 k <- index_now
 fn=1
-for (k in c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)) {
+# TODO: understand this part
+# k <- 16
+# filename[[126]]
+
+# for (k in c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)) {
+for (k in c(126)) {
 #for (k in index_now:length(filename)) {
-df_doc <- tibble()
+  df_doc <- tibble()
   for (fn in 1:length(filename[[k]])) {
     df_doc_tmp <- read_lines(filename[[k]][fn]) %>% as_tibble() %>% 
       summarise(value = str_c(value, collapse = " ")) %>%
