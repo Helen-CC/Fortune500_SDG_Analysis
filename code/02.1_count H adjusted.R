@@ -1,11 +1,13 @@
-#install.packages("clipr") #給write_clip function
+rm(list = ls())
 library(tidyverse)
 library(tidytext)
-library(clipr)
+# library(clipr)
 library(stringi)
+df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
+df_final_key_old <- read_rds("./data/rds/df_final_key.rds")
 
-df_final_key <- read_rds("df_final_key.rds")
-df_final_key %>% write_clip()
+setdiff(df_final_key$word, df_final_key_old$word)
+setdiff(df_final_key_old$word, df_final_key$word)
 
 # IO of annual reports
 # 這裡的path 要根據annual report 放的路徑改
