@@ -77,9 +77,9 @@ df_bind <- df_keyword_nspace %>%
 # clean up env
 rm(list=setdiff(ls(), "df_bind"))
 
-
 # Load the manual edited keyword mapping
 # https://docs.google.com/spreadsheets/d/1fZdE9WcFYI_d_sD4BgBpI5D1QhOYlRngsuSEtB7w694/edit#gid=470532546
+
 df_manual <- read_excel("./data/raw_data/manual_edit_keywords.xlsx",
                         sheet = "df_manual")
 h <- hash(keys = df_manual$word, values = df_manual$word_new)
@@ -96,6 +96,13 @@ mapKeyVal <- function(keys) {
 
 # replace the original keywords
 df_bind <- df_bind %>% 
+  filter(!str_detect(word, " or ")) %>% 
+  # replace "or" as | 
+  bind_rows(
+    df_bind %>% 
+      filter(str_detect(word, " or ")) %>% 
+      mutate(word = str_replace_all(word, " or ", "|"))
+  ) %>% 
   mutate(word = ifelse(word %in% df_manual$word,
                         mapKeyVal(word),
                         word))
