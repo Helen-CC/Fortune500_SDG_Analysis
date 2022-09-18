@@ -31,7 +31,7 @@ df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v
          naics = `NAICS Code & Description (Eikon)`)
 # TODO: not sure the relation between the specific number and the field of industry
 SPECIFIC_ROWS <- c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)
-SPECIFIC_ROWS <- c(126, 211)
+# SPECIFIC_ROWS <- c(126, 211)
 df.RankCode %>% 
   filter(rank %in% SPECIFIC_ROWS) 
 
