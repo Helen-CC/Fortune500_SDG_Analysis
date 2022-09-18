@@ -1,8 +1,8 @@
 rm(list = ls())
 library(tidyverse)
 library(tidytext)
-# library(clipr)
 library(stringi)
+library(fs)
 
 # Load data
 df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
@@ -13,89 +13,96 @@ setdiff(df_final_key$word, df_final_key_old$word)
 setdiff(df_final_key_old$word, df_final_key$word)
 
 # IO of annual reports
-# 這裡的path 要根據annual report 放的路徑改
-# (原)foldername <- list.files(path = "annual", pattern = '', full.names = T)
-foldername <- list.files(path = "./data/raw_data/Fortune_500_report/", 
-                         pattern = '', full.names = T)
+txt_files <- fs::dir_ls("./data/raw_data/Fortune_500_report/", 
+                        recurse = TRUE, regexp = "\\.txt")
+df.txt <- bind_cols(
+  path = txt_files
+  ) %>% 
+  mutate(rank = str_replace(path, "./data/raw_data/Fortune_500_report/", "")) %>% 
+  mutate(rank = str_extract(rank, pattern = "\\d+"))
 
-# make sure they are all folders(資料夾)
-#foldername <- foldername[!str_detect(foldername, "udpipe")]
-#filename <- list()
-#i <- 1
+# Select txt files based on NAICS code
+## Load company Rank and NAICS code mapping
+df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx", 
+                                  sheet = "Fortune Global 500 2021") %>% 
+  select(rank = Rank, 
+         name = Name, 
+         sic = `SIC Code`, 
+         naics = `NAICS Code & Description (Eikon)`)
+# TODO: not sure the relation between the specific number and the field of industry
+SPECIFIC_ROWS <- c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)
+SPECIFIC_ROWS <- c(126, 211)
+df.RankCode %>% 
+  filter(rank %in% SPECIFIC_ROWS) 
 
-#13-16 新寫的，以下是之前的，但根據我現在電腦本機路徑改
-# foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
-# foldername <- foldername[!str_detect(foldername, "udpipe")]
-filename <- list()
-i <- 1
+df.txt %>% 
+  filter(rank %in% SPECIFIC_ROWS) 
 
-# filename %>% as_tibble %>% write_clip()
-# filename %>% write_rds("C:\\Users\\User\\Desktop\\Research Proposal\\Y3, Manuscript 1 TM\\Help_Ted Helen\\filename.rds")
-# filename <- read_rds("./data/rds/filename.rds")
-for (i in 1:length(foldername)) {
-  print(i)
-  inner_foldername_tmp <- list.files(path = foldername[i], pattern = '', full.names = T)
-  inner_foldername <- inner_foldername_tmp[!str_detect(inner_foldername_tmp, "pdf")]
-  filename[[i]] <- list.files(path = inner_foldername, pattern = '', full.names = T)
-  filename[[i]] <-  filename[[i]][str_detect(filename[[i]], "txt")]
+
+# compute word count
+## After selecting specific companies
+txt.toRead <- df.txt %>% 
+  filter(rank %in% SPECIFIC_ROWS) %>% 
+  pull(path)
+
+## new a df to store the path of the file to read and the contents
+df_doc <- tibble()
+for (txt in txt.toRead) {
+  filename <- str_replace(txt, "./data/raw_data/Fortune_500_report/", "") %>% 
+    str_extract("\\d+(\\s\\w+)+")
+  year <- str_extract(txt, "20\\d{2}")
+  df.tmp <- read_lines(txt) %>% 
+    as_tibble() %>% 
+    summarise(value = str_c(value, collapse = "\\s")) %>% 
+    mutate(name = filename,
+           rank = str_extract(name, "\\d+"),
+           rank = as.numeric(rank),
+           name = paste0(name, "_", year)) %>% 
+    drop_na() %>% 
+    arrange(rank)
+  df_doc <- df_doc %>% bind_rows(df.tmp)
 }
 
+## post-processing the read files
+df_sentence <- df_doc %>% 
+  # convert character vector between encodings
+  mutate(value = iconv(value, "", "UTF-8")) %>% 
+  unnest_tokens(output = text, input = value, token = "sentences") %>% 
+  drop_na() %>% 
+  arrange(rank)
+
+## New an empty tibble to store the final result
 df_keyword_n <- tibble()
-
-index_now <- 1
-k <- index_now
-fn=1
-# TODO: understand this part
-# k <- 16
-# filename[[126]]
-
-# for (k in c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)) {
-for (k in c(126)) {
-#for (k in index_now:length(filename)) {
-  df_doc <- tibble()
-  for (fn in 1:length(filename[[k]])) {
-    df_doc_tmp <- read_lines(filename[[k]][fn]) %>% as_tibble() %>% 
-      summarise(value = str_c(value, collapse = " ")) %>%
-      mutate(name = filename[[k]][fn])
-    df_doc <- df_doc %>% bind_rows(df_doc_tmp)
+for (txtfile in unique(df_sentence$name)) {
+  for (keyword in df_final_key$word) {
+    message(keyword)
+    n_keyword <- df_sentence %>% 
+      filter(name == txtfile) %>% 
+      pull(text) %>% 
+      map_dbl(~stringi::stri_count(., regex = keyword)) %>% 
+      sum(.)
+    df_keyword_n_tmp <- tibble(name = txtfile,
+                               n_keyword,
+                               keyword)
+    df_keyword_n <- df_keyword_n %>% bind_rows(df_keyword_n_tmp)
   }
-  
-  df_sentence <- df_doc %>% mutate(value = iconv(value, "", "UTF-8")) %>% 
-    unnest_tokens(output = text, input = value, token = "sentences")
-  # df_sentence %>% glimpse()
-  #i=1 i 是一家公司裡面的第幾個檔
-  #j=1 j 是第幾個關鍵字
-  
-  for (i in 1:length(unique(df_sentence$name))) {
-    for(j in 1:nrow(df_final_key)){
-    # for(j in 101:200){
-      if(j %% 100 == 0){cat('.\n')}
-      message(df_final_key$word[j])
-      n_keyword <- df_sentence %>% filter(name == unique(df_sentence$name)[i]) %>%
-        pull(text) %>% map_dbl(~stringi::stri_count(., regex = df_final_key$word[j])) %>%
-        sum(.)
-      sdg_word <- df_final_key$word[j]
-      df_keyword_n_tmp <- tibble(name = df_doc[i, ]$name, n_keyword, sdg_word)
-      df_keyword_n <- df_keyword_n %>% bind_rows(df_keyword_n_tmp)
-    }
-  }
-  message("finish", "")
-  index_now <- index_now + 1
-  Sys.sleep(60)
-  
 }
+
+# for (i in seq_along(unique(df_sentence$name))) {
+#   for(j in 1:nrow(df_final_key)){
+#     message(df_final_key$word[j])
+#     n_keyword <- df_sentence %>% 
+#       filter(name == unique(df_sentence$name)[i]) %>%
+#       pull(text) %>% 
+#       map_dbl(~stringi::stri_count(., regex = df_final_key$word[j])) %>%
+#       sum(.)
+#     sdg_word <- df_final_key$word[j]
+#     df_keyword_n_tmp <- tibble(name = df_doc[i, ]$name, n_keyword, sdg_word)
+#     df_keyword_n <- df_keyword_n %>% bind_rows(df_keyword_n_tmp)
+#   }
+# }
+
+## Save files
+df_keyword_n %>% write_rds("./data/cleaned_data/df_wordCount_SPECIFIC.rds")
 
 df_keyword_n %>% filter(n_keyword > 0)
-df_keyword_n %>% write_rds("df_keyword_31.rds")
-
-Mining21 <- read_rds("df_keyword_21.rds")
-Mining21 %>% write_csv ("Mining21.csv")
-Manufacturing31 <-  read_rds("df_keyword_31.rds")
-Manufacturing31 %>% write_csv ("Manufacturing31.csv")
-Manufacturing33 <-  read_rds("df_keyword_33.rds")
-Manufacturing33 %>% write_csv ("Manufacturing33.csv")
-
-index_now %>% write_rds
-
-# https://github.com/Aurora-Network-Global/sdg-queries
-# https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcpb-ap-se2.wpmucdn.com%2Fblogs.auckland.ac.nz%2Fdist%2F8%2F761%2Ffiles%2F2020%2F10%2FUoA-SDG-Keyword-List-Ver.-1.1.xlsx&wdOrigin=BROWSELINK
