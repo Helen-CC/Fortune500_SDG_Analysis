@@ -1,16 +1,18 @@
 #install.packages("clipr") #給write_clip function
+rm(list = ls())
 library(tidyverse)
 library(tidytext)
 library(clipr)
 library(stringi)
 
-df_final_key <- read_rds("df_final_key.rds")
-df_final_key %>% write_clip()
+df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
+# df_final_key %>% write_clip()
 
 # IO of annual reports
 # 這裡的path 要根據annual report 放的路徑改
 # (原)foldername <- list.files(path = "annual", pattern = '', full.names = T)
-foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
+# foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
+foldername <- list.files(path = "./data/raw_data/Fortune_500_report/", pattern = '', full.names = T)
 
 # make sure they are all folders(資料夾)
 #foldername <- foldername[!str_detect(foldername, "udpipe")]
@@ -23,8 +25,8 @@ foldername <- foldername[!str_detect(foldername, "udpipe")]
 filename <- list()
 i <- 1
 
-filename %>% as_tibble %>% write_clip()
-filename %>% write_rds("C:\\Users\\User\\Desktop\\Research Proposal\\Y3, Manuscript 1 TM\\Help_Ted Helen\\filename.rds")
+# filename %>% as_tibble %>% write_clip()
+# filename %>% write_rds("C:\\Users\\User\\Desktop\\Research Proposal\\Y3, Manuscript 1 TM\\Help_Ted Helen\\filename.rds")
 
 for (i in 1:length(foldername)) {
   print(i)
@@ -40,6 +42,7 @@ index_now <- 1
 k <- index_now
 fn=1
 for (k in c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)) {
+# for (k in c(126, 211)) {
 #for (k in index_now:length(filename)) {
 df_doc <- tibble()
   for (fn in 1:length(filename[[k]])) {
@@ -74,17 +77,29 @@ df_doc <- tibble()
   
 }
 
-df_keyword_n %>% filter(n_keyword > 0)
-df_keyword_n %>% write_rds("df_keyword_31.rds")
+# for comparison
+df_keyword_n %>% write_rds("./data/cleaned_data/df_wordCount_SPECIFIC_OLD.rds")
 
-Mining21 <- read_rds("df_keyword_21.rds")
-Mining21 %>% write_csv ("Mining21.csv")
-Manufacturing31 <-  read_rds("df_keyword_31.rds")
-Manufacturing31 %>% write_csv ("Manufacturing31.csv")
-Manufacturing33 <-  read_rds("df_keyword_33.rds")
-Manufacturing33 %>% write_csv ("Manufacturing33.csv")
+# the companies that are selected
+df_keyword_n %>% 
+  pull(name) %>% 
+  str_replace("./data/raw_data/Fortune_500_report//", "") %>% 
+  str_extract("\\d+") %>% 
+  unique() %>% 
+  as.numeric() %>% 
+  sort()
 
-index_now %>% write_rds
-
-# https://github.com/Aurora-Network-Global/sdg-queries
-# https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcpb-ap-se2.wpmucdn.com%2Fblogs.auckland.ac.nz%2Fdist%2F8%2F761%2Ffiles%2F2020%2F10%2FUoA-SDG-Keyword-List-Ver.-1.1.xlsx&wdOrigin=BROWSELINK
+# df_keyword_n %>% filter(n_keyword > 0)
+# df_keyword_n %>% write_rds("df_keyword_31.rds")
+# 
+# Mining21 <- read_rds("df_keyword_21.rds")
+# Mining21 %>% write_csv ("Mining21.csv")
+# Manufacturing31 <-  read_rds("df_keyword_31.rds")
+# Manufacturing31 %>% write_csv ("Manufacturing31.csv")
+# Manufacturing33 <-  read_rds("df_keyword_33.rds")
+# Manufacturing33 %>% write_csv ("Manufacturing33.csv")
+# 
+# index_now %>% write_rds
+# 
+# # https://github.com/Aurora-Network-Global/sdg-queries
+# # https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fcpb-ap-se2.wpmucdn.com%2Fblogs.auckland.ac.nz%2Fdist%2F8%2F761%2Ffiles%2F2020%2F10%2FUoA-SDG-Keyword-List-Ver.-1.1.xlsx&wdOrigin=BROWSELINK
