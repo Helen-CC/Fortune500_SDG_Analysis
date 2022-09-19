@@ -28,16 +28,29 @@ df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v
   select(rank = Rank, 
          name = Name, 
          sic = `SIC Code`, 
-         naics = `NAICS Code & Description (Eikon)`)
+         naics = `NAICS Code & Description (Eikon)`) %>% 
+  mutate(naics2 = floor(naics/100))
 # TODO: not sure the relation between the specific number and the field of industry
-SPECIFIC_ROWS <- c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)
+# SPECIFIC_ROWS <- c(16, 126, 211, 411, 395, 116, 191, 417, 405, 53, 324, 391, 408, 478, 37, 153, 302, 299, 360, 204, 234, 125, 248)
 # SPECIFIC_ROWS <- c(126, 211)
+SPECIFIC_ROWS <- c(79, 112, 131, 146, 202, 210, 211, 236, 270, 282, 289, 309, 321, 368, 370, 390, 422, 450, 454, 463, 466, 469, 474)
 df.RankCode %>% 
-  filter(rank %in% SPECIFIC_ROWS) 
+  filter(rank %in% SPECIFIC_ROWS) %>% 
+  View
 
 df.txt %>% 
-  filter(rank %in% SPECIFIC_ROWS) 
+  filter(rank %in% SPECIFIC_ROWS) %>% 
+  View
 
+
+# A BETTER WAY TO SELECT NAICS STARTING WITH 31
+TARGET_ROWS <- df.RankCode %>% 
+  filter(naics2 == 31) %>% 
+  pull(rank) %>% 
+  unique() %>% 
+  sort()
+
+SPECIFIC_ROWS == TARGET_ROWS
 
 # compute word count
 ## After selecting specific companies
@@ -87,20 +100,6 @@ for (txtfile in unique(df_sentence$name)) {
     df_keyword_n <- df_keyword_n %>% bind_rows(df_keyword_n_tmp)
   }
 }
-
-# for (i in seq_along(unique(df_sentence$name))) {
-#   for(j in 1:nrow(df_final_key)){
-#     message(df_final_key$word[j])
-#     n_keyword <- df_sentence %>% 
-#       filter(name == unique(df_sentence$name)[i]) %>%
-#       pull(text) %>% 
-#       map_dbl(~stringi::stri_count(., regex = df_final_key$word[j])) %>%
-#       sum(.)
-#     sdg_word <- df_final_key$word[j]
-#     df_keyword_n_tmp <- tibble(name = df_doc[i, ]$name, n_keyword, sdg_word)
-#     df_keyword_n <- df_keyword_n %>% bind_rows(df_keyword_n_tmp)
-#   }
-# }
 
 ## Save files
 df_keyword_n %>% write_rds("./data/cleaned_data/df_wordCount_SPECIFIC.rds")
