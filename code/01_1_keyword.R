@@ -2,11 +2,9 @@ rm(list = ls())
 # Load necessary packages
 library(tidyverse)
 library(readxl)
-library(clipr)
 library(hash)
 
 # Setup working directory
-setwd("/Volumes/TOSHIBA3T/2022-09-07/Fortune500_SDG_Analysis")
 getwd()
 
 # Load keyword dictionary
@@ -46,20 +44,6 @@ df_keyword_nspace <- df_keyword_unnest %>%
 df_keyword_space <- df_keyword_unnest %>% 
   filter(str_detect(word," ")) %>%
   mutate(word = str_to_lower(word))
-
-# ## The following code demonstrate that why `\s` is better than a single white space
-# df.test.s <- df_keyword_unnest %>% 
-#   filter(!str_detect(word, "\\s")) %>% 
-#   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
-#   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
-# df.test.space <- df_keyword_unnest %>% 
-#   filter(!str_detect(word, " ")) %>% 
-#   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
-#   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
-# x <- df.test.s$word
-# y <- df.test.space$word
-# setdiff(y, x)
-
 
 # Create a dataframe to merge the dataframe with and without spaces
 df_bind <- df_keyword_nspace %>% 
