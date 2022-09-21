@@ -7,7 +7,7 @@ pkgLoad <- function( packages = "requirements" ) {
     #                "feather", "googlesheets", "readr", "DT", "knitr",
     #                "rmarkdown", "Rcpp")
     packages <- c( "tidyverse", "tidytext", "fs", "stringi", "readxl",
-                   "hash")
+                   "hash", "viridis", "ggrepel")
   }
   
   packagecheck <- match( packages, utils::installed.packages()[,1] )
