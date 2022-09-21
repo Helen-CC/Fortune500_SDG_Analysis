@@ -1,3 +1,5 @@
+*_.rds
+*_OLD.rds
 ~$*.xlsx
 data/rds/*.rds
 data/raw_data/Fortune_500_report/*
