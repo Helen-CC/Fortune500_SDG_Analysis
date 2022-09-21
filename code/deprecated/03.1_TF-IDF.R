@@ -1,13 +1,14 @@
-install.packages("viridis")
+rm(list = ls())
+# install.packages("viridis")
 library(tidyverse)
 library(tidytext)
 library(ggrepel)
 library(viridis)
 
-df_final_key <- read_rds("df_final_key.rds")
+df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 
 # IO of annual reports
-foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
+foldername <- list.files(path = "./data/raw_data/Fortune_500_report", pattern = '', full.names = T)
 # make sure they are all folders(資料夾)
 foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
 foldername <- foldername[!str_detect(foldername, "udpipe")]
@@ -86,7 +87,7 @@ df_word_bi <- df_word %>% filter(!str_detect(word, "[0-9]")) %>%
 
 df_word_uni_n <- df_word_uni %>% 
   #mutate(name = str_remove(name, " text file/.*|txt/.* |Group/.*")) %>%
-  mutate(name = str_remove_all(name, "([0-9]){1,4}.txt|F:\\Fortune  500 report/"))%>%
+  mutate(name = str_remove_all(name, "([0-9]){1,4}.txt|\\./data/raw_data/Fortune_500_report"))%>%
   count(name, word)
 df_word_uni_n %>% count(name)
 
@@ -94,9 +95,9 @@ df_uni_tfidf <- df_word_uni_n %>%
   anti_join(stop_words) %>%
   bind_tf_idf(word, name, n)
 
-df_word_uni_n %>% write_rds("df_word_uni_n_21.rds") #目前結果存出去
-df_uni_tfidf %>% write_rds("df_uni_tfidf21.rds")
-df_uni_tfidf %>% write_csv("df_uni_tfidf21.csv")
+df_word_uni_n %>% write_rds("./data/cleaned_data/df_word_uni_n_21_OLD.rds") #目前結果存出去
+df_uni_tfidf %>% write_rds("./data/cleaned_data/df_uni_tfidf21_OLD.rds")
+df_uni_tfidf %>% write_csv("./data/cleaned_data/df_uni_tfidf21_OLD.csv")
 
 #tfidf 畫圖
 
@@ -104,7 +105,7 @@ df_uni_tfidf %>% count(name)
 
 #df_uni_tfidf %>% mutate(name = str_remove_all(name, "F:\\Fortune  500 report/"))
 df_uni_tfidf_cleanname <- df_uni_tfidf %>%
-              mutate(name = str_remove_all(name, "F:\\\\Fortune  500 report/"))%>%
+              mutate(name = str_remove_all(name, "\\./data/raw_data/Fortune_500_report"))%>%
               mutate(name = str_remove_all(name, "/.*"))%>%
               mutate(name = str_remove_all(name, "[0-9]{1,4} "))
 df_uni_tfidf_cleanname %>% count(name)
@@ -140,7 +141,7 @@ df_uni_tfidf_cleanname %>% #filter(name %in% c("Anglo American",
   #scale_fill_viridis(option="plasma", discrete = TRUE)
   
 p_tw_black %>% 
-  ggsave(filename = "tfidf21.png", dpi = 300, height = 12, width = 12)
+  ggsave(filename = "./data/result/tfidf21_OLD.png", dpi = 300, height = 12, width = 12)
 
 #子軒原來寫的
 group_by(name) %>% arrange(-tf_idf) %>%
