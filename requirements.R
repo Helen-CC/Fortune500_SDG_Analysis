@@ -1,11 +1,7 @@
 pkgLoad <- function( packages = "requirements" ) {
   
   if( length( packages ) == 1L && packages == "requirements" ) {
-    # packages <- c( "data.table", "chron", "plyr", "dplyr", "shiny",
-    #                "shinyjs", "parallel", "devtools", "doMC", "utils",
-    #                "stats", "microbenchmark", "ggplot2", "readxl",
-    #                "feather", "googlesheets", "readr", "DT", "knitr",
-    #                "rmarkdown", "Rcpp")
+  
     packages <- c( "tidyverse", "tidytext", "fs", "stringi", "readxl",
                    "hash", "viridis", "ggrepel")
   }

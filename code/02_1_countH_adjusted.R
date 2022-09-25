@@ -9,12 +9,13 @@ df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 df_final_key_old <- read_rds("./data/rds/df_final_key.rds")
 
 # a comparison: check correctness
-setdiff(df_final_key$word, df_final_key_old$word)
+setdiff(df_final_key$word, df_final_key_old$word) #A集合插集B 集合，新的比舊的
 setdiff(df_final_key_old$word, df_final_key$word)
 
 # IO of annual reports
 txt_files <- fs::dir_ls("./data/raw_data/Fortune_500_report/", 
-                        recurse = TRUE, regexp = "\\.txt")
+                        recurse = TRUE, regexp = "\\.txt") 
+#recurse 意思 遞規 點進去資料夾的時候用，資料夾點到最裡面那層
 df.txt <- bind_cols(
   path = txt_files
   ) %>% 
@@ -25,9 +26,9 @@ df.txt <- bind_cols(
 ## Load company Rank and NAICS code mapping
 df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx", 
                                   sheet = "Fortune Global 500 2021") %>% 
-  select(rank = Rank, # fjwioefjwieop
-         name = Name, # fjwiopejfiowe
-         sic = `SIC Code`, # back tick "dplyr" ferfqweejf2iofjlei
+  select(rank = Rank, #不以數字開頭、沒特殊符號、沒有空格，可不加back tick
+         name = Name, 
+         sic = `SIC Code`, #有空格，特殊符號 要用 `` back tick dplyr 套件用法
          naics = `NAICS Code & Description (Eikon)`) %>% 
   mutate(naics2 = floor(naics/100))
 # TODO: not sure the relation between the specific number and the field of industry
