@@ -25,9 +25,9 @@ df.txt <- bind_cols(
 ## Load company Rank and NAICS code mapping
 df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx", 
                                   sheet = "Fortune Global 500 2021") %>% 
-  select(rank = Rank, 
-         name = Name, 
-         sic = `SIC Code`, 
+  select(rank = Rank, # fjwioefjwieop
+         name = Name, # fjwiopejfiowe
+         sic = `SIC Code`, # back tick "dplyr" ferfqweejf2iofjlei
          naics = `NAICS Code & Description (Eikon)`) %>% 
   mutate(naics2 = floor(naics/100))
 # TODO: not sure the relation between the specific number and the field of industry
