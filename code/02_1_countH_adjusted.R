@@ -46,13 +46,13 @@ df.txt %>%
 
 # A BETTER WAY TO SELECT NAICS STARTING WITH 31
 TARGET_ROWS <- df.RankCode %>% 
-  filter(naics2 == 31) %>% 
+  filter(naics2 == 31) %>%  #要換產業做這裡31改
   pull(rank) %>% 
   unique() %>% 
   sort()
 
 SPECIFIC_ROWS == TARGET_ROWS
-
+#SPECIFIC_ROWS 只是為了確認之前結果，選出來的公司對不對
 # compute word count
 ## After selecting specific companies
 txt.toRead <- df.txt %>% 
