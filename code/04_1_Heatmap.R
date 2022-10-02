@@ -83,3 +83,12 @@ df.plot %>%
   # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
   #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
   #       text = element_text(family = "Noto Sans CJK TC Medium"))
+
+
+## Save plot
+p1 %>% 
+  ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2_CODE, ".png"), 
+         device = "png",
+         dpi = 300, 
+         units = "in",
+         height = 12, width = 12)
