@@ -12,7 +12,7 @@ library(clipr)
 library(ggplot2)
 
 # IO of annual reports
-foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
+foldername <- list.files(path = "./data/raw_data/Fortune_500_report/", pattern = '', full.names = T)
 # make sure they are all folders(資料夾)
 foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
 foldername <- foldername[!str_detect(foldername, "udpipe")]
@@ -54,12 +54,12 @@ df_word_length <- df_word %>%
   mutate(name = str_remove(name, " 20-F")) %>%
   mutate(name = str_remove_all(name, " AR| Annual Report| Group| \\(Group\\)"))
 # 存word_length
-df_word_length %>% write_rds ("word_length21.rds")
-df_word_length %>% write_csv("word_length21.csv")
+# df_word_length %>% write_rds ("word_length21.rds")
+# df_word_length %>% write_csv("word_length21.csv")
 
-df_final_key <- read_rds("df_final_key.rds")
+df_final_key <- read_rds("./data/rds/df_final_key.rds")
 #df_final_key %>% filter(!row_number() %in% c(278)) # 去掉 SDG11 governance 這個字 #沒成功!!!
-df_raw <- read_rds("df_keyword_21.rds")
+df_raw <- read_rds("./data/rds/df_keyword_21.rds")
 
 df_join <- df_raw %>% 
   mutate(name = str_remove(name, ".*/")) %>% #整理縮減name column 檔名
@@ -77,8 +77,8 @@ df_long_join <- df_long %>%
   left_join(df_word_length %>% group_by(name) %>% summarise(n = sum(n))) %>%
   mutate(per_keyword = n_keyword/n)
 
-df_long_join %>% write_rds ("long_join31.rds")
-df_long_join %>% write_csv("long_join31.csv")
+# df_long_join %>% write_rds ("long_join31.rds")
+# df_long_join %>% write_csv("long_join31.csv")
 
 # df_wide <- df_join %>% filter(n_keyword > 0) %>%
 #   group_by(name, sdg) %>% summarise(n_keyword = sum(n_keyword)) %>% ungroup() %>%
