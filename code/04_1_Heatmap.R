@@ -1,65 +1,81 @@
-install.packages("psych")
-install.packages("psychTools")
-install.packages("psych", repos="http://personality-project.org/r", type="source" )
-install.packages("ggplot2")
-install.packages("extrafontdb")
-
+rm(list = ls())
 library(tidyverse)
 library(tidytext)
 library(psych)
 library(psychTools)
-library(clipr)
+# library(clipr)
 library(ggplot2)
 
+
+df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
+
 # IO of annual reports
-foldername <- list.files(path = "F:\\Fortune  500 report", pattern = '', full.names = T)
-# make sure they are all folders(資料夾)
-foldername <- foldername[!str_detect(foldername, "\\.xlsx$|\\.docx$|\\.R$|\\.ini$")]
-foldername <- foldername[!str_detect(foldername, "udpipe")]
-filename <- list()
-i <- 1
-for (i in 1:length(foldername)) {
-  print(i)
-  inner_foldername_tmp <- list.files(path = foldername[i], pattern = '', full.names = T)
-  inner_foldername <- inner_foldername_tmp[!str_detect(inner_foldername_tmp, "pdf")]
-  filename[[i]] <- list.files (path= inner_foldername, pattern = "", full.names = T)
+txt_files <- fs::dir_ls("./data/raw_data/Fortune_500_report/", 
+                        recurse = TRUE, regexp = "\\.txt")
+df.txt <- bind_cols(
+  path = txt_files
+  ) %>% 
+  mutate(rank = str_replace(path, "./data/raw_data/Fortune_500_report/", "")) %>% 
+  mutate(rank = str_extract(rank, pattern = "\\d+"))
+
+# Select txt files based on NAICS code
+## Load company Rank and NAICS code mapping
+df.RankCode <- readxl::read_excel("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx", 
+                                  sheet = "Fortune Global 500 2021") %>% 
+  select(rank = Rank, 
+         name = Name, 
+         sic = `SIC Code`, 
+         naics = `NAICS Code & Description (Eikon)`) %>% 
+  mutate(naics2 = floor(naics/100))
+
+# A BETTER WAY TO SELECT NAICS STARTING WITH 31
+## TODO: input the NAICS2 you want
+NAICS2 <- 31
+TARGET_ROWS <- df.RankCode %>% 
+  filter(naics2 == NAICS2) %>% 
+  pull(rank) %>% 
+  unique() %>% 
+  sort()
+
+# compute word count
+## After selecting specific companies
+txt.toRead <- df.txt %>% 
+  filter(rank %in% TARGET_ROWS) %>% 
+  pull(path)
+
+## new a df to store the path of the file to read and the contents
+df_doc <- tibble()
+for (txt in txt.toRead) {
+  filename <- str_replace(txt, "./data/raw_data/Fortune_500_report/", "") %>% 
+    str_extract("\\d+(\\s\\w+)+")
+  year <- str_extract(txt, "20\\d{2}")
+  df.tmp <- read_lines(txt) %>% 
+    as_tibble() %>% 
+    summarise(value = str_c(value, collapse = "\\s")) %>% 
+    mutate(name = filename,
+           rank = str_extract(name, "\\d+"),
+           rank = as.numeric(rank),
+           year = as.numeric(year)) %>% 
+    drop_na() %>% 
+    arrange(rank, year)
+  df_doc <- df_doc %>% bind_rows(df.tmp)
 }
 
-index_now <- 1
-k <- index_now
-### 這邊在外面沒錯 要重跑就要歸零
-df_doc <- tibble()
-### 讀你要的 text
-for (k in c(445, 46, 484, 18, 30, 107, 127, 151, 161, 164, 392, 268, 469, 136, 339, 425, 194, 217, 333, 343, 175, 307)) {
-  for (fn in 1:length(filename[[k]])) {
-    df_doc_tmp <- read_lines(filename[[k]][fn]) %>% as_tibble() %>% 
-      summarise(value = str_c(value, collapse = " ")) %>%
-      mutate(name = filename[[k]][fn])
-    df_doc <- df_doc %>% bind_rows(df_doc_tmp)
-  }
-  message("finish", "")
-  index_now <- index_now + 1
-  Sys.sleep(0) #這裡0可以自己改
-}
+
+
 
 df_word <- df_doc %>% 
   unnest_tokens(output = word, input = value, token = "words")
 
-df_word_length <- df_word %>% 
-  count(name) %>%
-  mutate(year = str_extract(name, "([0-9]){4}")) %>%
-  mutate(name = str_remove(name, ".*/")) %>% #整理縮減name column 檔名
-  mutate(name = str_remove(name, " ([0-9]){4}.txt")) %>%
-  mutate(name = str_remove(name, " ([0-9]){4} AR.txt")) %>%
-  mutate(name = str_remove(name, " 20-F")) %>%
-  mutate(name = str_remove_all(name, " AR| Annual Report| Group| \\(Group\\)"))
-# 存word_length
-df_word_length %>% write_rds ("word_length21.rds")
-df_word_length %>% write_csv("word_length21.csv")
+df_word_length <-df_word %>% 
+  group_by(year, rank) %>% 
+  count(name) %>% 
+  mutate(name = str_replace(name, "\\d+\\s", ""))
 
-df_final_key <- read_rds("df_final_key.rds")
+
+
 #df_final_key %>% filter(!row_number() %in% c(278)) # 去掉 SDG11 governance 這個字 #沒成功!!!
-df_raw <- read_rds("df_keyword_21.rds")
+df_raw <- read_rds("./data/rds/df_keyword_21.rds")
 
 df_join <- df_raw %>% 
   mutate(name = str_remove(name, ".*/")) %>% #整理縮減name column 檔名
@@ -77,13 +93,6 @@ df_long_join <- df_long %>%
   left_join(df_word_length %>% group_by(name) %>% summarise(n = sum(n))) %>%
   mutate(per_keyword = n_keyword/n)
 
-df_long_join %>% write_rds ("long_join31.rds")
-df_long_join %>% write_csv("long_join31.csv")
-
-# df_wide <- df_join %>% filter(n_keyword > 0) %>%
-#   group_by(name, sdg) %>% summarise(n_keyword = sum(n_keyword)) %>% ungroup() %>%
-#   pivot_wider(names_from = sdg, values_from = n_keyword, values_fill = list(n_keyword = 0)) %>%
-#   select(name, SDG0, SDG1, SDG2, SDG3, SDG4, SDG5, SDG6, SDG7, SDG8, SDG9, SDG10, SDG11, SDG12, SDG13, SDG14, SDG15, SDG16)
 
 df_long_join %>%
   mutate(sdg_number = str_extract(sdg, "[0-9]{1,2}")) %>%
