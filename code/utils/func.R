@@ -1,19 +1,30 @@
-# IO of annual reports
+# Functions repeatedly used
 
 getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx"){
+  "
+  Description:
+    the function load the excel file that records the 500 companies and the SIC code, NAICS code
+    return a dataframe that shows the mapping of company and code
+  "
   ## Load company Rank and NAICS code mapping
   df.RankCode <- readxl::read_excel(EXCEL_PATH, 
                                     sheet = "Fortune Global 500 2021") %>% 
-    select(rank = Rank, 
+    select(rank = Rank, # 當 column name 不以數字開頭、沒特殊符號、沒有空格時，可不加back tick
            name = Name, 
-           sic = `SIC Code`, 
+           sic = `SIC Code`, # 當 col name 不合以上條件就要用 `` back tick 包住，是 dplyr 套件的用法
            naics = `NAICS Code & Description (Eikon)`) %>% 
     mutate(naics2 = floor(naics/100))
   
   return(df.RankCode)
 }
 
+
 readReports <- function(NAICS2_CODE) {
+  "
+  Description:
+    input: the first 2 digits of NAICS code
+    output: a dataframe that selected the given codes and lists the corresponding companies and annual report contents
+  "
   
   # read in files
   txt_files <- fs::dir_ls("./data/raw_data/Fortune_500_report/", 
