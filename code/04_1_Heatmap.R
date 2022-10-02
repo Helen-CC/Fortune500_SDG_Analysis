@@ -3,18 +3,32 @@ library(tidyverse)
 library(tidytext)
 library(ggplot2)
 source("./code/utils/func.R")
+source("./code/utils/weakWords.R")
 
 df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
-df.doc_31 <- readReports(NAICS2_CODE = "31")
-df.doc_21 <- readReports(NAICS2_CODE = "21")
+df.doc_31 <- readReports(NAICS2_CODE = 31)
+df.doc_21 <- readReports(NAICS2_CODE = 21)
 
 
 
 df.word_31 <- df.doc_31 %>% 
-  unnest_tokens(output = word, input = value, token = "words")
+  unnest_tokens(output = word, input = value, token = "words") %>% 
+  filter(!word %in% stopwords::stopwords()) %>% 
+  filter(!word %in% base::letters) %>% 
+  anti_join(stop_words) %>% 
+  filter(!str_detect(word, "\\d+\\w")) %>% 
+  filter(!str_detect(word, "\\d+")) %>% 
+  filter(!word %in% weak_words)
+
 df.word_21 <- df.doc_21 %>% 
-  unnest_tokens(output = word, input = value, token = "words")
+  unnest_tokens(output = word, input = value, token = "words") %>% 
+  filter(!word %in% stopwords::stopwords()) %>% 
+  filter(!word %in% base::letters) %>% 
+  anti_join(stop_words) %>% 
+  filter(!str_detect(word, "\\d+\\w")) %>% 
+  filter(!str_detect(word, "\\d+")) %>% 
+  filter(!word %in% weak_words)
 
 df.wordlen_31 <- df.word_31 %>% 
   group_by(year, rank) %>% 
@@ -59,7 +73,8 @@ df.plot <- df.long_join %>%
   mutate(sdg = as_factor(sdg)) %>%
   mutate(sdg = fct_reorder(sdg, sdg_number))
 
-df.plot %>%
+# TODO: sort companies by NAICS code
+p1 <- df.plot %>%
   ggplot(aes(x = name, y = sdg, fill = per_keyword)) + 
   # grid plot
   geom_tile() +
@@ -83,7 +98,7 @@ df.plot %>%
   # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
   #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
   #       text = element_text(family = "Noto Sans CJK TC Medium"))
-
+p1
 
 ## Save plot
 p1 %>% 

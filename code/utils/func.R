@@ -40,6 +40,7 @@ readReports <- function(NAICS2_CODE) {
   df.RankCode <- getRankCodeMap()
   
   # TO SELECT NAICS STARTING WITH THE CODE YOU INPUT
+  # TODO: directly use NAICS to match
   TARGET_ROWS <- df.RankCode %>% 
     filter(naics2 == NAICS2_CODE) %>% 
     pull(rank) %>% 
