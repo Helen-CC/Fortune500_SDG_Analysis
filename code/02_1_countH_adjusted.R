@@ -18,7 +18,7 @@ df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xl
 
 ## A BETTER WAY TO SELECT NAICS STARTING WITH XX
 ## TODO: Change the following code if needed
-NAICS2_CODE <- 21
+NAICS2_CODE <- 31
 df.doc <- readReports(NAICS2_CODE)
 
 
