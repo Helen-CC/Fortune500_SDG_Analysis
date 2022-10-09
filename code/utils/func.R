@@ -62,7 +62,8 @@ readReports <- function(NAICS2_CODE) {
       mutate(name = filename,
              rank = str_extract(name, "\\d+"),
              rank = as.numeric(rank),
-             year = as.numeric(year)) %>% 
+             year = as.numeric(year),
+             name = paste0(name, "_", year)) %>% 
       drop_na() %>% 
       arrange(rank, year)
     df_doc <- df_doc %>% bind_rows(df.tmp)
