@@ -14,9 +14,10 @@ library(readr)
 library(stringr)
 
 # Load data
-df <- read_rds("./data/cleaned_data/df_wordCount_naics_31.rds")
+df <- read_rds("./data/cleaned_data/df_wordCount_NAICS31.rds")
 df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 
+str(df); class(df)
 # Merge SDG categories
 df <- df %>% 
   left_join(df_final_key, by = c('keyword' = 'word')) %>% 
@@ -29,6 +30,14 @@ df <- df %>%
          rank = as.numeric(rank),
          name = str_remove(name, "\\d+"),
          name = str_trim(name))
+
+# Join Methods in dplyr (the package that deals with dataframes)
+# 
+# dplyr::inner_join()
+# left_join
+# right_join
+# outer_join
+# anti_join
 
 # Prepare for plot
 df.plot <- df %>% 
@@ -53,7 +62,7 @@ df.plot <- df %>%
 ## Pick a company
 ## TODO: input a company's rank
 AVAILABLE_COMPANIES <- df %>% select(name, rank) %>% distinct()
-company_rank <- 131
+company_rank <- 370
 company_name <- AVAILABLE_COMPANIES %>% filter(rank == company_rank) %>% pull(name)
 
 p1 <- df.plot %>% 
