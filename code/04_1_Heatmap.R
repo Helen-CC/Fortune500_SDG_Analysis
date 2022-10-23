@@ -12,7 +12,7 @@ df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xl
 ## For example:
 ## df.doc <- readReports(NAICS2_CODE = 31)
 ## df.doc <- readReports(NAICS2_CODE = 21)
-NAICS2 <- 31
+NAICS2 <- 21
 df.doc <- readReports(NAICS2_CODE = NAICS2)
 
 
@@ -67,6 +67,15 @@ df.plot <- df.long_join %>%
   mutate(sdg_number = as.numeric(str_extract(sdg, "\\d+"))) %>%
   mutate(sdg = as_factor(sdg)) %>%
   mutate(sdg = fct_reorder(sdg, sdg_number))
+
+## assign factor level to the names
+df.plot <- df.plot %>% 
+  left_join(df.RankCode %>% select(-name), by = c('rank')) %>% 
+  mutate(name = as_factor(name)) %>% 
+  mutate(name = fct_reorder(name, naics))
+  
+df.plot$name %>% unique()
+
 
 # TODO: sort companies by NAICS code
 p1 <- df.plot %>%
