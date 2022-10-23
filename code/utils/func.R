@@ -54,6 +54,16 @@ readReports <- function(NAICS2_CODE) {
   for (txt in txt.toRead) {
     filename <- str_replace(txt, "./data/raw_data/Fortune_500_report/", "") %>% 
       str_extract("\\d+(\\s\\w+)+")
+    # TODO: fixed the filename
+      # str_extract("\\d+(\\s[A-Z\\&'\\.\\(\\)\\-éóú]+)+")
+      # 220 Shaanxi Coal & Chemical Industry/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt
+      # 191 Alimentation Couche-Tard/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt
+      # 237 América Móvil/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt
+      # 146 Archer Daniels Midland (ADM)/Shaanxi Coal & Chemical Industry no AR.txt
+      # 148 Xiamen C&D/Shaanxi Coal & Chemical Industry no AR.txt
+      # 328 Suning.com Group/Shaanxi Coal & Chemical Industry no AR.txt
+      # 314 J. Sainsbury/Shaanxi Coal & Chemical Industry no AR.txt
+      # 322 Itaú Unibanco Holding/Shaanxi Coal & Chemical Industry no AR.txt
     year <- str_extract(txt, "20\\d{2}")
     df.tmp <- read_lines(txt) %>% 
       as_tibble() %>% 

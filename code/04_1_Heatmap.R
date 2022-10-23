@@ -68,12 +68,21 @@ df.plot <- df.long_join %>%
   mutate(sdg = as_factor(sdg)) %>%
   mutate(sdg = fct_reorder(sdg, sdg_number))
 
+# change company names
+df.pplot <- df.plot %>% 
+  mutate(name = ifelse(name == "Oil", "Oil & Natural Gas", name))
+
 ## assign factor level to the names
 df.plot <- df.plot %>% 
+  # put NAICS code back by merging two dataframe
   left_join(df.RankCode %>% select(-name), by = c('rank')) %>% 
+  # mutate(name = paste0(name, " ", naics)) %>% 
   mutate(name = as_factor(name)) %>% 
   mutate(name = fct_reorder(name, naics))
+
   
+df.plot$name
+
 df.plot$name %>% unique()
 
 
