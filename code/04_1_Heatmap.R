@@ -7,12 +7,17 @@ source("./code/utils/weakWords.R")
 
 df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
-df.doc_31 <- readReports(NAICS2_CODE = 31)
-df.doc_21 <- readReports(NAICS2_CODE = 21)
+
+# Load the NAICS code you want
+## For example:
+## df.doc <- readReports(NAICS2_CODE = 31)
+## df.doc <- readReports(NAICS2_CODE = 21)
+NAICS2 <- 31
+df.doc <- readReports(NAICS2_CODE = NAICS2)
 
 
 
-df.word_31 <- df.doc_31 %>% 
+df.word <- df.doc %>% 
   unnest_tokens(output = word, input = value, token = "words") %>% 
   filter(!word %in% stopwords::stopwords()) %>% 
   filter(!word %in% base::letters) %>% 
@@ -21,30 +26,17 @@ df.word_31 <- df.doc_31 %>%
   filter(!str_detect(word, "\\d+")) %>% 
   filter(!word %in% weak_words)
 
-df.word_21 <- df.doc_21 %>% 
-  unnest_tokens(output = word, input = value, token = "words") %>% 
-  filter(!word %in% stopwords::stopwords()) %>% 
-  filter(!word %in% base::letters) %>% 
-  anti_join(stop_words) %>% 
-  filter(!str_detect(word, "\\d+\\w")) %>% 
-  filter(!str_detect(word, "\\d+")) %>% 
-  filter(!word %in% weak_words)
-
-df.wordlen_31 <- df.word_31 %>% 
-  group_by(year, rank) %>% 
-  count(name) %>% 
-  mutate(name = str_replace(name, "\\d+\\s", ""))
-df.wordlen_21 <- df.word_21 %>% 
+df.wordlen <- df.word %>% 
   group_by(year, rank) %>% 
   count(name) %>% 
   mutate(name = str_replace(name, "\\d+\\s", ""))
 
 # Join two dataframes from script 1 and 2
-df.word_21 %>% head()
+df.word %>% head()
 df_final_key %>% head()
-df.wordCount_31 <- read_rds("./data/cleaned_data/df_wordCount_naics_31.rds")
+df.wordCount <- read_rds(paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
 
-df.combine <- df.wordCount_31 %>%
+df.combine <- df.wordCount %>%
   left_join(df_final_key, by = c("keyword" = "word")) %>% 
   mutate(year = as.numeric(str_extract(name, "20\\d+")),
          name = str_replace(name, "_20\\d+", ""),
@@ -61,9 +53,12 @@ df.long <- df.combine %>%
   ungroup()
 
 df.long_join <- df.long %>% 
-  left_join(df.wordlen_31 %>% 
+  left_join(df.wordlen %>% 
               group_by(name) %>% 
-              summarise(n = sum(n))
+              summarise(n = sum(n)) %>% 
+              mutate(year = str_extract(name, "_20\\d{2}"),
+                     year = as.numeric(str_remove(year, "_")),
+                     name = str_remove(name, "_20\\d{2}"))
             ) %>%
   mutate(per_keyword = n_keyword/n)
 
@@ -102,7 +97,7 @@ p1
 
 ## Save plot
 p1 %>% 
-  ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2_CODE, ".png"), 
+  ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2, ".png"), 
          device = "png",
          dpi = 300, 
          units = "in",
