@@ -36,8 +36,7 @@ df_keyword_unnest <- df_keyword %>%
 
 # Create a dataframe of keywords without spaces -> nspace
 df_keyword_nspace <- df_keyword_unnest %>% 
-  filter(!str_detect(word, " ")) %>% # TODO: better change space into `\\s`
-  ## TODO: need to know the variable meaning
+  filter(!str_detect(word, " ")) %>% 
   mutate(lll = str_length(word), lll_b = str_count(word, "[A-Z]")) %>%
   mutate(word = if_else(lll > lll_b, str_to_lower(word), word))
 # Create a dataframe of keywords with spaces
