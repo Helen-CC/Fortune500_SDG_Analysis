@@ -32,7 +32,8 @@ df_keyword_unnest <- df_keyword %>%
   mutate(word = str_replace_all(word, "\\*", ".?")) %>%
   mutate(word = str_replace_all(word, " AND ", ".*?")) %>% #舉例 Economic Resource AND Access 在一個句子裡面同時出現，不一定要前後
   mutate(word = str_split(word, "; ")) %>% #把excel 裡面同一格有 分號; 的分開到不同row 如row 101
-  unnest(c(word))
+  unnest(c(word)) %>% 
+  distinct()
 
 # Create a dataframe of keywords without spaces -> nspace
 df_keyword_nspace <- df_keyword_unnest %>% 
@@ -97,6 +98,10 @@ df_final_key <- df_bind %>%
   filter(!str_detect(word, "not")) %>%
   distinct() %>%
   filter(!str_detect(word,"goverance")) #看看要不要governance 這個字
+
+# make sure the keywords are distinct
+df_final_key <- df_final_key %>% 
+  distinct()
 
 # Save file
 df_final_key %>% 
