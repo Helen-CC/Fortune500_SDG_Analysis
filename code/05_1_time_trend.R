@@ -65,7 +65,7 @@ df.plot <- df %>%
 ## Pick a company
 ## TODO: input a company's rank
 AVAILABLE_COMPANIES <- df %>% select(name, rank) %>% distinct()
-company_rank <- 84
+company_rank <- 256
 company_name <- AVAILABLE_COMPANIES %>% filter(rank == company_rank) %>% pull(name)
 
 label_data <- df.plot |> 
@@ -89,7 +89,7 @@ label_data <- df.plot |>
 
 # Find top 5 SDG categories for the last year (2020)
 top_5_sdg <- df.plot %>%
-  filter(rank == company_rank, year == 2020) %>%
+  filter(rank == company_rank, year == 2023) %>%
   # choose the top n SDG categories to show a text box
   top_n(3, ratio) %>%
   pull(sdg)
@@ -107,7 +107,7 @@ p1 <- df.plot %>%
   geom_text(data = df.plot %>% 
               # TODO: change the hard-coded year in the following line
               # the year must be the last available year
-              filter(rank == company_rank, sdg %in% top_5_sdg, year == 2020),
+              filter(rank == company_rank, sdg %in% top_5_sdg, year == 2023),
             aes(label = sdg, y = ratio + 0.5),
             size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE)
 
@@ -131,7 +131,7 @@ p2
 #p1 %>% 
   #ggsave(filename = paste0("./data/result/fig_timetrend_across_SDGcate_", company_name, ".png"), 
         # device = "png",
-         #dpi = 300, 
+         #dpih = 300, 
         # units = "in",
         # height = 12, width = 12)
 

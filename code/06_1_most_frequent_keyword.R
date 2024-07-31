@@ -27,13 +27,13 @@ findMostFreqKeyword <- function(NAICS_Code2) {
     group_by(original_keyword, sdg) %>% 
     summarise(original_keyword = head(original_keyword, 1),
               keyword = head(keyword, 1),
-              n_keyword = max(n_keyword),
+              n_keyword = sum(n_keyword), #這裡可以改max or mean
               sdg = list(unique(sdg))) %>% 
     ungroup() %>% 
     arrange(desc(n_keyword)) %>% 
     distinct() %>% 
     # take the top 15 most frequent
-    slice(1:15) %>% 
+    slice(1:20) %>% 
     #add or remove n_keyword to include or exclude frequency column
     select(sdg, original_keyword, n_keyword) %>% #add or remove n_keyword here
     mutate(sdg = unlist(sdg)) %>% 

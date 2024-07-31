@@ -1,8 +1,8 @@
 #' Rerun selected word counts
 
 rm(list = ls())
-NAICS2_CODES <- c(11, 21, 22, 23, 31, 32, 33, 42, 44, 45, 48, 49, 51, 52, 53, 54, 60, 62, 72)
-# NAICS2_CODES <- c(11) #如果只要（重）跑特定一個產業，即單獨放那個產業
+# NAICS2_CODES <- c(11, 21, 22, 23, 31, 32, 33, 42, 44, 45, 48, 49, 51, 52, 53, 54, 60, 62, 72)
+NAICS2_CODES <- c(21) #如果只要（重）跑特定一個產業，即單獨放那個產業
 # all industries in Excel: TM Final_FortuneG500 (2021)_v2
 # NAICS2_CODES <- c(11, 21, 22, 23, 31, 32, 33, 42, 44, 45, 48, 49, 51, 52, 53, 54, 60, 62, 72)
 # 19 industries in total
@@ -46,6 +46,8 @@ for (NAICS2_CODE in NAICS2_CODES) {
 # 21 :  9.315039 hours
 # 11 :  1.165202 mins
 
+# 30 July 2024 time note:
+#Time used 21 :  10.01932 hours 
 
 
 
