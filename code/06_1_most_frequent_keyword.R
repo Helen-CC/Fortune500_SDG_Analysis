@@ -47,9 +47,14 @@ findMostFreqKeyword <- function(NAICS_Code2) {
 }
 
 # find the most frequent keywords across industry
+MAX_ENTRIES <- 15
 col21 <- findMostFreqKeyword(21)
 col31 <- findMostFreqKeyword(31)
 col33 <- findMostFreqKeyword(33)
+
+col21 <- col21[1:MAX_ENTRIES, ]
+col31 <- col31[1:MAX_ENTRIES, ]
+col33 <- col33[1:MAX_ENTRIES, ]
 
 # TODO: delete all 3 `Frequency` to drop out frequency column
 df.table <- bind_cols(
