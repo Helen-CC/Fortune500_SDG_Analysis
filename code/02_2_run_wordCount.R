@@ -48,6 +48,8 @@ for (NAICS2_CODE in NAICS2_CODES) {
 
 # 30 July 2024 time note:
 #Time used 21 :  10.01932 hours 
+# 31 July 2024 time note:
+# Time used:  21 :  9.860266 hours 
 
 
 
