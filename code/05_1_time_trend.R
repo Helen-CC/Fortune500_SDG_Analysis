@@ -94,6 +94,8 @@ top_5_sdg <- df.plot %>%
   top_n(3, ratio) %>%
   pull(sdg)
 
+# scale the range of y-axis
+y_max <- max(df.plot$ratio) * 1.15
 # Plot the data
 p1 <- df.plot %>% 
   filter(rank == company_rank) %>% 
@@ -109,7 +111,8 @@ p1 <- df.plot %>%
               # the year must be the last available year
               filter(rank == company_rank, sdg %in% top_5_sdg, year == 2023),
             aes(label = sdg, y = ratio + 0.5),
-            size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE)
+            size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE) +
+  ylim(0, y_max)
 
 p1
 
