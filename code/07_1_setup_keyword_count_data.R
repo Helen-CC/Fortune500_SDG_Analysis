@@ -21,7 +21,7 @@ sdg_data <- tibble()
 
 for (NAICS2 in NAICS2_CODES) {
   # Load keyword counts (need to attach the corresponding SDG category label)
-  df.wordCount <- read_rds(paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
+  df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS{NAICS2}.RDS"))
   # attach SDG label and clean up firm-year observations
   df.combine <- df.wordCount %>%
     left_join(df_final_key, by = c("keyword" = "word")) %>% 
@@ -52,36 +52,5 @@ for (NAICS2 in NAICS2_CODES) {
 }
 
 # save the sdg_data
-sdg_data |> write_rds("./data/cleaned_data/df_regression_by_SDG_NAICS_firmyear.RDS")
+sdg_data |> write_rds(glue("{DROPBOX_PATH}/cleaned_data/df_regression_by_SDG_NAICS_firmyear.RDS"))
 
-
-#' @section Regression
-
-# create indicator variables
-# TODO: add more indicators
-data <- sdg_data %>% 
-  mutate(isNAICS21 = ifelse(naics == 21, 1, 0),
-         isNAICS31 = ifelse(naics == 31, 1, 0),
-         isNAICS11 = ifelse(naics == 11, 1, 0)) 
-
-# inspect column names
-sdg_data %>% colnames()
-
-# plot histograms to see the difference of distributions
-sdg_data %>% 
-  ggplot()+
-  geom_histogram(aes(n_keyword))+
-  facet_wrap(~naics, nrow = 2)
-
-#' run regressions
-#' Identification:
-#'     the number of keywords mentioned in SDGXX by a company ~ industry indicators + error
-# add fixed effect
-reg1 <- feols(n_keyword ~ isNAICS21 | year, data = data)
-# show the regression table
-etable(reg1, coefstat = "tstat")
-
-# if there is more than one industry indicators...
-reg2 <- feols(n_keyword ~ isNAICS21 + isNAICS31 + isNAICS11 - 1, 
-              data = sdg_data)
-etable(reg2, coefstat = "tstat")
