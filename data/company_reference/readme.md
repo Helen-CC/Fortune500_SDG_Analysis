@@ -1,2 +1,1 @@
-describe functions of each files in this folder
-
+In the folder, we manually collect gvkeys for each company

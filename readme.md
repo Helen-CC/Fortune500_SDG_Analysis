@@ -1,3 +1,12 @@
+# Fortune 500 Analysis
+
+# Project structure and crucial paths
+
+
+# Replication steps
+
+## `master_script.R`
+
 # TODOs
 
 - [ ] Add regression analyses to compare keyword counts for different SDG categories within the same industry.

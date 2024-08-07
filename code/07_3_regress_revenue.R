@@ -15,7 +15,7 @@ load_dot_env()
 DROPBOX_PATH <- Sys.getenv("DATA_FOLDER")
 
 # pick up a set of keywords to use
-df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
 
 #' @section Join two dataframes from script 1 and 2 to obtain keyword counts from all SDG categories and from all industries
 # iterate through all NAICS codes
