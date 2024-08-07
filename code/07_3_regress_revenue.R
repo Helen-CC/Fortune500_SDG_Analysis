@@ -9,10 +9,7 @@ library(tidyr) # for data cleaning
 library(readr) # for RDS data loading
 library(glue) # for string concatenation
 library(dotenv) # for environmental variable loading
-
-# to load data from dropbox
-load_dot_env()
-DROPBOX_PATH <- Sys.getenv("DATA_FOLDER")
+source("./code/config.R", encoding = '')
 
 # pick up a set of keywords to use
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))

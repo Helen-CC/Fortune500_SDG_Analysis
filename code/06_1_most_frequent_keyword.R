@@ -9,14 +9,15 @@ library(dplyr)
 library(readr)
 library(stringr)
 library(kableExtra)
+source("./code/config.R", encoding = '')
 
 findMostFreqKeyword <- function(NAICS_Code2) {
   # Load data based on NAICS code 
   # 可以在console 打NAICS_Code2 <- 21 (或其他產業)後看df.wordCount
-  df.wordCount <- read_rds(paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS_Code2, ".rds"))
+  df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS{NAICS_Code2}.RDS"))
   # df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
   # df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
-  df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+  df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
   
   df.res <- df.wordCount %>% filter(n_keyword > 0) %>% 
     # merge back the original keyword

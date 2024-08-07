@@ -38,3 +38,8 @@ source("./code/05_1_time_trend.R")
 # Go to the code and specify the keyword set to use in the code
 source("./code/06_1_most_frequent_keyword.R")
 
+# regress firm revenue on SDG keyword frequencies and firm characteristics
+
+
+
+
