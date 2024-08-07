@@ -1,6 +1,7 @@
+rm(list = ls()); gc()
 
 # step 0: prepare coding env
-source("./requirements.R")
+source("./code/requirements.R")
 
 # step 1: load and clean dictionary
 source("./code/01_1_keyword.R")

@@ -19,7 +19,7 @@ test_filepath <- "/Volumes/buffalo/4_teaching/Fortune500_SDG_Analysis/data/raw_d
 
 # read a specific text file
 # overwrite the existing function with the same name
-readReports <- function(filepath) {
+readReports_deprecated <- function(filepath) {
   
   ## Create a new df to store the path of the file to read and the contents
   df_doc <- tibble()

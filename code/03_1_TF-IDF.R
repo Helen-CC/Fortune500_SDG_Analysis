@@ -6,10 +6,11 @@ library(viridis)
 library(ggplot2)
 source("./code/utils/func.R")
 source("./code/utils/weakWords.R")
+source("./code/config.R", encoding = '')
 
 # Load keywords
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
-df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+# df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
 # IO of annual reports
 df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")

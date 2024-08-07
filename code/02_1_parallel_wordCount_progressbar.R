@@ -11,6 +11,7 @@ library(furrr)
 library(doFuture)
 library(progressr)
 source("./code/utils/func.R", encoding = '')
+source("./code/config.R", encoding = '')
 
 # Set up parallel backend
 # Registrate workers
@@ -62,7 +63,8 @@ countWords <- function(splited_data, index = NULL, total = NULL, the_naics_code 
 
 
 # Load data
-df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+# df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
 # IO of annual reports
 df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
@@ -113,7 +115,8 @@ cat(">>> Time used: ", format(t2 - t1), "\n")
 
 
 ## Save files
-path_name <- paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS2_CODE, ".rds")
+# path_name <- paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS2_CODE, ".rds")
+path_name <- glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS{NAICS2_CODE}.RDS")
 res %>% write_rds(path_name)
 
 parallel::stopCluster(cl)

@@ -7,17 +7,16 @@ rm(list = ls())
 # the y-axis is ratio
 # SDG0-SDG16 -> 17 lines
 
-
 library(dplyr)
 library(ggplot2)
 library(readr)
 library(stringr)
 library(forcats)
+source("./code/config.R", encoding = '')
 
 # Load data
-df <- read_rds("./data/cleaned_data/df_wordCount_NAICS21.rds")
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
-df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+df <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS21.rds"))
+df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
 
 str(df); class(df)
 # Merge SDG categories

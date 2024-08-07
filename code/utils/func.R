@@ -3,6 +3,7 @@ library(dplyr)
 library(stringr)
 library(assertthat)
 library(tidyverse)
+source("./code/config.R", encoding = '')
 
 getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx"){
   "
@@ -31,18 +32,22 @@ readReports <- function(NAICS2_CODE) {
   "
   
   # read in files
-  txt_files <- fs::dir_ls("./data/raw_data/Fortune_500_report/", 
+  path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
+  txt_files <- fs::dir_ls(path_prefix, 
                           # recurse means 遞歸, 會進入一層層子資料夾內取得所有檔案的路徑
                           recurse = TRUE, regexp = "\\.txt|\\.htm")
+  txt_files[1]
   # make the above vector of paths as a dataframe
   df.txt <- bind_cols(
-    path = txt_files) %>% 
-    mutate(rank = str_replace(path, "./data/raw_data/Fortune_500_report/", "")) %>% 
+      path = txt_files
+    ) %>% 
+    mutate(rank = str_replace(path, fixed(path_prefix), "")) %>%
     mutate(rank = str_extract(rank, pattern = "\\d+"))
   # \\d represents a digit character.
   # + is a quantifier that specifies to match one or more occurrences of the preceding pattern.
   # "\\d+" matches one or more consecutive digit characters in a string.
- 
+  df.txt$rank[1]
+  
   df.RankCode <- getRankCodeMap()
   
   # TO SELECT NAICS STARTING WITH THE CODE YOU INPUT
@@ -78,8 +83,9 @@ readReports <- function(NAICS2_CODE) {
 }
 
 parseFilenameFromPath <- function(txt_path) {
+  path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
   filename <- txt_path %>% 
-    str_replace("./data/raw_data/Fortune_500_report/", "") %>% 
+    str_replace(fixed(path_prefix), "") %>% 
     str_extract("\\d+.+?/") %>% 
     str_remove("/")
   return(filename)

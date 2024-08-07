@@ -4,10 +4,11 @@ library(tidytext)
 library(ggplot2)
 source("./code/utils/func.R",encoding = "")
 source("./code/utils/weakWords.R")
+source("./code/config.R", encoding = '')
 
 #df_final_key 如果要用SDSN 的Keyword改這邊
 # TODO: pick up a set of keywords to use
-df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
+df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
 # df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
 df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
 
@@ -49,7 +50,7 @@ df.wordlen <- df.wordlen %>%
 df.word %>% head()
 df_final_key %>% head()
 # TODO: make sure the names of firms are aligned
-df.wordCount <- read_rds(paste0("./data/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
+df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
 
 df.combine <- df.wordCount %>%
   left_join(df_final_key, by = c("keyword" = "word")) %>% 

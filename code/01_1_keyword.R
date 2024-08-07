@@ -1,11 +1,10 @@
 rm(list = ls()) #把環境清空
+
 # Load necessary packages
 library(tidyverse)
 library(readxl)
 library(hash)
-
-# Setup working directory
-getwd()
+source("./code/config.R", encoding = '')
 
 #' @function
 # keyword_file <- "./data/raw_data/keyword/Keyword_SDSN.csv"
@@ -103,5 +102,7 @@ process_keywords <- function(keyword_file) {
 
 df_all <- process_keywords("./data/raw_data/keyword/Keyword_all.csv")
 
-df_all %>% write_rds("./data/cleaned_data/df_final_key_all.rds")
+# write binaries into Dropbox
+# df_all %>% write_rds("./data/cleaned_data/df_final_key_all.rds")
+df_all %>% write_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
