@@ -54,34 +54,6 @@ firm_characteristics_glob <- firm_characteristics_glob %>%
   left_join(df_fx, 
             join_by(closest(datadate <= datadate)))
 
-# firm_characteristics_glob %>%
-#   mutate(at = case_when(
-#     curcd == "AUD" ~ at / AUD_USD,
-#     curcd == "BRL" ~ at / BRL_USD,
-#     curcd == "CHF" ~ at / CHF_USD,
-#     curcd == "CNY" ~ at / CNY_USD,
-#     curcd == "EUR" ~ at / EUR_USD,
-#     curcd == "GBP" ~ at / GBP_USD,
-#     curcd == "HKD" ~ at / HKD_USD,
-#     curcd == "INR" ~ at / INR_USD,
-#     curcd == "JPY" ~ at / JPY_USD,
-#     curcd == "KRW" ~ at / KRW_USD,
-#     curcd == "MXN" ~ at / MXN_USD,
-#     curcd == "MYR" ~ at / MYR_USD,
-#     curcd == "NOK" ~ at / NOK_USD,
-#     curcd == "RUB" ~ at / RUB_USD,
-#     curcd == "SAR" ~ at / SAR_USD,
-#     curcd == "SEK" ~ at / SEK_USD,
-#     curcd == "SGD" ~ at / SGD_USD,
-#     curcd == "THB" ~ at / THB_USD,
-#     curcd == "TRY" ~ at / TRY_USD,
-#     curcd == "TWD" ~ at / TWD_USD,
-#     curcd == "UGX" ~ at / UGX_USD,
-#     curcd == "USD" ~ at,
-#     TRUE ~ NA_real_
-#   )) 
-
-
 firm_characteristics_glob_converted <- firm_characteristics_glob %>%
   mutate(across(c(at, revt), ~ case_when(
     curcd == "AUD" ~ . / AUD_USD,
@@ -153,7 +125,6 @@ df_merged %>%
 reg1 <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
               vcov = "HC1",
               data = df_merged)
-# show the regression table
 etable(reg1, coefstat = "tstat")
 etable(reg1, 
        coefstat = "tstat", 
@@ -167,5 +138,29 @@ etable(reg2, coefstat = "tstat")
 etable(reg2, 
        coefstat = "tstat", 
        file = "./data/result/tables/tab_reg_revt_on_nkeywords_2.tex",
+       replace = T)
+
+
+# Only focusing on mining firms
+gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
+gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
+df_merged_mining <- df_merged %>% filter(gvkey %in% gvkeys_mining)
+
+reg3 <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
+              vcov = "HC1",
+              data = df_merged_mining)
+etable(reg3, coefstat = "tstat")
+etable(reg3, 
+       coefstat = "tstat", 
+       file = "./data/result/tables/tab_reg_revt_on_nkeywords_mining_1.tex",
+       replace = T)
+
+reg4 <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, sic2), 
+              vcov = "HC1",
+              data = df_merged_mining)
+etable(reg4, coefstat = "tstat")
+etable(reg4, 
+       coefstat = "tstat", 
+       file = "./data/result/tables/tab_reg_revt_on_nkeywords_mining_2.tex",
        replace = T)
 
