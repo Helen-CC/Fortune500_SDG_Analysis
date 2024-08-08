@@ -39,7 +39,9 @@ source("./code/05_1_time_trend.R")
 source("./code/06_1_most_frequent_keyword.R")
 
 # regress firm revenue on SDG keyword frequencies and firm characteristics
-
-
-
+source("./code/07_1_setup_keyword_count_data.R")
+source("./code/07_2_fetch_curcd_datadate.R")
+# ipynb should be run in a python environment
+# source("./code/07_3_fetch_exchange_rates.ipynb")
+source("./code/07_4_regress_revenue_on_keyword_count.R")
 
