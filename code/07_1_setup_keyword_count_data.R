@@ -6,6 +6,8 @@ library(ggplot2) # for plotting
 library(fixest) # for regression models
 library(dplyr) # for dataframe operations
 library(tidyr) # for data cleaning
+library(stringr)
+library(forcats)
 library(readr) # for RDS data loading
 library(glue) # for string concatenation
 library(dotenv) # for environmental variable loading
