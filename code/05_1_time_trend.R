@@ -108,11 +108,11 @@ p1 <- df.plot %>%
         axis.text.x = element_text(size = 13)) +
   # add text box to the end of 2020 data that indicates the top n SDG category
   geom_text(data = df.plot %>% 
-              # TODO: change the hard-coded year in the following line
-              # the year must be the last available year
               filter(rank == company_rank, sdg %in% top_5_sdg, year == MAX_YEAR),
             aes(label = sdg, y = ratio + 0.5),
             size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE) +
+  #by = 1, every years will show on png; by = 2, every 2 years
+  scale_x_continuous(breaks = seq(min(df.plot$year), max(df.plot$year), by = 1))+
   ylim(0, y_max)
 
 p1
@@ -128,8 +128,8 @@ p2 <- df.plot |>
   labs(x = "year", y = "percentage")+
   #這兩行調x y 軸字大小
   theme(axis.text.y = element_text(size = 13),
-        axis.text.x = element_text(size = 13))
-
+        axis.text.x = element_text(size = 13))+
+  scale_x_continuous(breaks = seq(min(df.plot$year), max(df.plot$year), by = 1))
 p2
 ## Save plot
 #p1 %>% 
