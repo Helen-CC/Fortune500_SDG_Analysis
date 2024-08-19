@@ -86,15 +86,17 @@ label_data <- df.plot |>
 # 
 # p1
 
+# SET THE END YEAR FOR PLOT #我不用手動改最後一年這裡
+MAX_YEAR <- df.plot %>% filter(rank == company_rank) %>% pull(year) %>% max()
 # Find top 5 SDG categories for the last year (2020)
 top_5_sdg <- df.plot %>%
-  filter(rank == company_rank, year == 2023) %>%
+  filter(rank == company_rank, year == MAX_YEAR) %>%
   # choose the top n SDG categories to show a text box
   top_n(3, ratio) %>%
   pull(sdg)
 
 # scale the range of y-axis
-y_max <- max(df.plot$ratio) * 1.15
+y_max <- max(df.plot$ratio) * 0.75
 # Plot the data
 p1 <- df.plot %>% 
   filter(rank == company_rank) %>% 
@@ -108,7 +110,7 @@ p1 <- df.plot %>%
   geom_text(data = df.plot %>% 
               # TODO: change the hard-coded year in the following line
               # the year must be the last available year
-              filter(rank == company_rank, sdg %in% top_5_sdg, year == 2023),
+              filter(rank == company_rank, sdg %in% top_5_sdg, year == MAX_YEAR),
             aes(label = sdg, y = ratio + 0.5),
             size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE) +
   ylim(0, y_max)
