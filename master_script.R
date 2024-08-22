@@ -43,5 +43,6 @@ source("./code/07_1_setup_keyword_count_data.R")
 source("./code/07_2_fetch_curcd_datadate.R")
 # ipynb should be run in a python environment
 # source("./code/07_3_fetch_exchange_rates.ipynb")
-source("./code/07_4_regress_revenue_on_keyword_count.R")
+source("./code/07_4_merge_regression.R")
+source("./code/07_5_regress_revenue_nkeyword.R")
 
