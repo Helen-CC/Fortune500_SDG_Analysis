@@ -1,0 +1,36 @@
+
+\begingroup
+\centering
+\begin{tabular}{lcccc}
+   \tabularnewline \midrule \midrule
+   Dependent Variable: & \multicolumn{4}{c}{revt}\\
+   Model:       & (1)              & (2)              & (3)              & (4)\\  
+   \midrule
+   \emph{Variables}\\
+   Constant     & 28,722.5$^{***}$ &                  &                  &   \\   
+                & (84.78)          &                  &                  &   \\   
+   n\_keyword   & 11.69$^{***}$    & 12.45$^{***}$    & 6.659$^{*}$      & -6.955$^{***}$\\   
+                & (3.191)          & (3.250)          & (1.778)          & (-3.029)\\   
+   at           & 0.0099$^{***}$   & 0.0099$^{***}$   & 0.0099$^{***}$   & 0.0230$^{***}$\\   
+                & (38.14)          & (38.10)          & (39.51)          & (45.56)\\   
+   emp          & 209.3$^{***}$    & 209.3$^{***}$    & 207.1$^{***}$    & 223.6$^{***}$\\   
+                & (92.28)          & (92.20)          & (114.1)          & (119.8)\\   
+   is\_mining   & 24,566.2$^{***}$ & 24,579.8$^{***}$ & 15,374.4$^{***}$ & -57,141.1$^{***}$\\   
+                & (15.89)          & (15.87)          & (10.22)          & (-22.42)\\   
+   \midrule
+   \emph{Fixed-effects}\\
+   sdg          &                  & Yes              & Yes              & Yes\\  
+   year         &                  &                  & Yes              & Yes\\  
+   naics        &                  &                  &                  & Yes\\  
+   \midrule
+   \emph{Fit statistics}\\
+   Observations & 28,710           & 28,710           & 28,710           & 28,710\\  
+   R$^2$        & 0.46859          & 0.46883          & 0.47918          & 0.76124\\  
+   Within R$^2$ &                  & 0.46861          & 0.46538          & 0.58618\\  
+   \midrule \midrule
+   \multicolumn{5}{l}{\emph{Heteroskedasticity-robust co-variance matrix, t-stats in parentheses}}\\
+   \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+\end{tabular}
+\par\endgroup
+
+

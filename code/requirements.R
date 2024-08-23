@@ -4,7 +4,7 @@ pkgLoad <- function( packages = "requirements" ) {
   
     packages <- c( "tidyverse", "tidytext", "fs", "stringi", "readxl",
                    "hash", "viridis", "ggrepel", "assertthat", "haven", "forcats",
-                   "doFuture", "progressr", "stopwords", "dotenv")
+                   "doFuture", "progressr", "stopwords", "dotenv", "fixest")
   }
   
   packagecheck <- match( packages, utils::installed.packages()[,1] )

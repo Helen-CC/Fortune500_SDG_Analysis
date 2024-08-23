@@ -103,64 +103,7 @@ df_merged <- df_merged %>%
   # drop uncessary variables
   select(-fyear)
   
-
-
-#' @section Regression
-
-# create indicator variables
-
-# inspect column names
-df_merged %>% colnames()
-
-# plot histograms to see the difference of distributions
-df_merged %>% 
-  ggplot()+
-  geom_histogram(aes(n_keyword))+
-  facet_wrap(~sic2, nrow = 2)
-
-#' run regressions
-#' Identification:
-#'     the number of keywords mentioned in SDGXX by a company ~ industry indicators + error
-# add fixed effect
-reg1 <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
-              vcov = "HC1",
-              data = df_merged)
-etable(reg1, coefstat = "tstat")
-etable(reg1, 
-       coefstat = "tstat", 
-       file = "./data/result/tables/tab_reg_revt_on_nkeywords_1.tex",
-       replace = T)
-
-reg2 <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, sic2), 
-              vcov = "HC1",
-              data = df_merged)
-etable(reg2, coefstat = "tstat")
-etable(reg2, 
-       coefstat = "tstat", 
-       file = "./data/result/tables/tab_reg_revt_on_nkeywords_2.tex",
-       replace = T)
-
-
-# Only focusing on mining firms
-gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
-gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
-df_merged_mining <- df_merged %>% filter(gvkey %in% gvkeys_mining)
-
-reg3 <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
-              vcov = "HC1",
-              data = df_merged_mining)
-etable(reg3, coefstat = "tstat")
-etable(reg3, 
-       coefstat = "tstat", 
-       file = "./data/result/tables/tab_reg_revt_on_nkeywords_mining_1.tex",
-       replace = T)
-
-reg4 <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, sic2), 
-              vcov = "HC1",
-              data = df_merged_mining)
-etable(reg4, coefstat = "tstat")
-etable(reg4, 
-       coefstat = "tstat", 
-       file = "./data/result/tables/tab_reg_revt_on_nkeywords_mining_2.tex",
-       replace = T)
+#' save merged data
+#' at `(firm, year, sdg, keyword_count)` level
+write_rds(df_merged, glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.RDS"))
 
