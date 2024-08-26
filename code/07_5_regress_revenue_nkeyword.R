@@ -27,13 +27,13 @@ df_merged %>%
 #' @section Regression
 #' @description
 #' List of sets of regressions
-#' fixed effects (FEs) are year & industry (SIC or NAICS) fixed effects
+#' fixed effects (FEs) are generally year & industry (SIC or NAICS) fixed effects
 
-#' Regression A: revenue ~ n_keyword + SDG Dummies and fixed effects
-#' Regression B: revenue ~ n_keyword, with fixed effects
-#' Regression C: revenue ~ n_keyword + mining indicator + SDG Dummies, with fixed effects
-#' Regression D: revenue ~ n_keyword + mining indicator, with fixed effects
-#' Regression E: revenue ~ n_keyword, conditioning on mining firms solely, with fixed effects
+#' Regression A: revenue ~ n_keyword + SDG Dummies + year & industry FEs
+#' Regression B: revenue ~ n_keyword + SDG FEs + year & industry FEs
+#' Regression C: revenue ~ n_keyword + mining indicator + SDG Dummies + year & industry FEs 
+#' Regression D: revenue ~ n_keyword + mining indicator + SDG FEs + year & industry FEs
+#' Regression E: revenue ~ n_keyword, conditioning on mining firms solely, with SDG FEs + year & industry FEs
 
 #' run regressions
 #' Identification:
@@ -48,7 +48,7 @@ reg.A_sic2 <- feols(revt ~ n_keyword + at + emp + i(sdg) - 1 | csw0(year, sic2),
               vcov = "HC1",
               data = df_merged)
 
-reg.B_naics <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
+reg.B_naics <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, naics), 
                vcov = "HC1",
                data = df_merged)
 reg.B_sic2 <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, sic2), 
@@ -78,24 +78,24 @@ save_reg_table(reg.B_sic2, "tab_reg_revt_on_nkeywords_B_sic2")
 
 
 
-
-reg.C_naics <- feols(revt ~ n_keyword + at + emp + is_mining | csw0(sdg,year, naics), 
+reg.C_naics <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(year, naics), 
               vcov = "HC1",
               data = df_merged)
-reg.C_sic2 <- feols(revt ~ n_keyword + at + emp + is_mining | csw0(sdg,year, sic2), 
-              vcov = "HC1",
-              data = df_merged)
-reg.D_naics <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(sdg,year, naics), 
-              vcov = "HC1",
-              data = df_merged)
-reg.D_sic2 <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(sdg,year, sic2), 
+reg.C_sic2 <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(year, sic2), 
               vcov = "HC1",
               data = df_merged)
 
-reg.E_naics <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, naics), 
+reg.D_naics <- feols(revt ~ n_keyword + at + emp + is_mining | csw0(sdg, year, naics), 
+              vcov = "HC1",
+              data = df_merged)
+reg.D_sic2 <- feols(revt ~ n_keyword + at + emp + is_mining | csw0(sdg, year, sic2), 
+              vcov = "HC1",
+              data = df_merged)
+
+reg.E_naics <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, naics), 
               vcov = "HC1",
               data = df_merged_mining)
-reg.E_sic2 <- feols(revt ~ n_keyword + at + emp | csw0(sdg,year, sic2), 
+reg.E_sic2 <- feols(revt ~ n_keyword + at + emp | csw0(sdg, year, sic2), 
               vcov = "HC1",
               data = df_merged_mining)
 
