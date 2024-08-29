@@ -7,21 +7,6 @@ source("./code/config.R")
 df_merged <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.RDS")) %>%
   mutate(naics2 = str_sub(naics, 0, 2)) 
 
-# # black list
-# df_merged <- df_merged %>%
-#   filter(gvkey != "100424")
-
-# # filter on NAICS code 2 == NAICS
-# df_merged %>%
-#   filter(naics2 == naics_self)
-#  df_merged %>%
-#   filter(naics2 != naics_self) %>%
-#    View
-  
-
-
-
-
 # Only focusing on mining firms
 gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
 gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
@@ -85,7 +70,10 @@ df_firmyear <- df_firmyear %>%
          sdg14_count = ifelse(is.na(sdg14_count), 0, sdg14_count),
          sdg15_count = ifelse(is.na(sdg15_count), 0, sdg15_count),
          sdg16_count = ifelse(is.na(sdg16_count), 0, sdg16_count),
-         ) 
+         ) %>%
+  mutate(sum_n_keyword = sdg0_count + sdg1_count  + sdg2_count + sdg3_count + sdg4_count + sdg5_count
+          + sdg6_count + sdg7_count + sdg8_count + sdg9_count + sdg10_count + sdg11_count + sdg12_count
+          + sdg13_count + sdg14_count + sdg15_count + sdg16_count)
 
 df_firmyear %>%
   group_by(gvkey, year) %>%
@@ -110,7 +98,6 @@ df_merged %>%
   geom_histogram(aes(n_keyword))+
   facet_wrap(~sic2, nrow = 2)
 
-
 #' @section Regression
 #' @description
 #' List of sets of regressions
@@ -121,6 +108,12 @@ df_merged %>%
 #' Regression C: revenue ~ n_keyword + mining indicator + SDG Dummies + year & industry FEs 
 #' Regression D: revenue ~ n_keyword + mining indicator + SDG FEs + year & industry FEs
 #' Regression E: revenue ~ n_keyword, conditioning on mining firms solely, with SDG FEs + year & industry FEs
+
+#' Regression F: Data is at firm-year level, we want to separate the potential colinearity between SDG indicators and n_keywords 
+#' Regression F.1: revenue ~ n_keyword + year & industry FEs
+#' Regression F.2: revenue ~ keyword_count_in_each_SDG_category + year & industry FEs
+#' Regression G.1: revenue ~ n_keyword + mining firm indicator + year FEs
+#' Regression G.2: revenue ~ keyword_count_in_each_SDG_category + mining firm indicator + year FEs
 
 #' run regressions
 #' Identification:
@@ -200,4 +193,52 @@ save_reg_table(reg.D_naics, "tab_reg_revt_on_nkeywords_mining_D_naics")
 save_reg_table(reg.D_sic2, "tab_reg_revt_on_nkeywords_mining_D_sic2")
 save_reg_table(reg.E_naics, "tab_reg_revt_on_nkeywords_mining_E_naics")
 save_reg_table(reg.E_sic2, "tab_reg_revt_on_nkeywords_mining_E_sic2")
+
+
+
+reg.F_naics <- feols(revt ~ sw(sum_n_keyword, 
+                               sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                               + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                               + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                               + sdg14_count + sdg15_count + sdg16_count) 
+                     + at + emp | csw(year, naics2), 
+               vcov = "HC1",
+               data = df_firmyear)
+
+reg.F_sic2 <- feols(revt ~ sw(sum_n_keyword, 
+                               sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                               + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                               + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                               + sdg14_count + sdg15_count + sdg16_count) 
+                     + at + emp | csw(year, sic2), 
+               vcov = "HC1",
+               data = df_firmyear)
+
+reg.G_naics <- feols(revt ~ is_mining + sw(sum_n_keyword, 
+                               sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                               + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                               + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                               + sdg14_count + sdg15_count + sdg16_count) 
+                     + at + emp | csw(year, naics2), 
+               vcov = "HC1",
+               data = df_firmyear)
+
+reg.G_sic2 <- feols(revt ~ is_mining + sw(sum_n_keyword , 
+                               + sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                               + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                               + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                               + sdg14_count + sdg15_count + sdg16_count) 
+                     + at + emp | csw(year, sic2), 
+               vcov = "HC1",
+               data = df_firmyear)
+
+etable(reg.F_naics, coefstat = "tstat")
+etable(reg.F_sic2, coefstat = "tstat")
+etable(reg.G_naics, coefstat = "tstat")
+etable(reg.G_sic2, coefstat = "tstat")
+
+save_reg_table(reg.F_naics, "tab_reg_revt_on_nkeywords_mining_F_naics")
+save_reg_table(reg.F_sic2, "tab_reg_revt_on_nkeywords_mining_F_sic2")
+save_reg_table(reg.G_naics, "tab_reg_revt_on_nkeywords_mining_G_naics")
+save_reg_table(reg.G_sic2, "tab_reg_revt_on_nkeywords_mining_G_sic2")
 
