@@ -1,68 +1,68 @@
 gvkey,fyear,Rank,Name,Country
-011259,2021,1,Walmart,US
+11259,2021,1,Walmart,US
 ,2021,2,State Grid,CN
-064768,2021,3,Amazon,US
+64768,2021,3,Amazon,US
 ,2021,4,China National Petroleum,CN
 ,2021,5,Sinopec Group,CN
-001690,2021,6,Apple,US
-007241,2021,7,CVS Health,US
-010903,2021,8,UnitedHealth Group,US
-019661,2021,9,Toyota Motor,JP
+1690,2021,6,Apple,US
+7241,2021,7,CVS Health,US
+10903,2021,8,UnitedHealth Group,US
+19661,2021,9,Toyota Motor,JP
 100737,2021,10,Volkswagen,DE
 ,2021,11,Berkshire Hathaway,US
-007171,2021,12,McKesson,US
+7171,2021,12,McKesson,US
 ,2021,13,China State Construction Engineering,CN
 355385,2021,14,Saudi Aramco,SA
 104604,2021,15,Samsung Electronics,KR
 160709,2021,16,Ping An Insurance,CN
-031673,2021,17,AmerisourceBergen,US
-002410,2021,18,BP,GB
-012384,2021,19,Royal Dutch Shell,NL
+31673,2021,17,AmerisourceBergen,US
+2410,2021,18,BP,GB
+12384,2021,19,Royal Dutch Shell,NL
 279378,2021,20,Industrial & Commercial Bank of China,CN
 160329,2021,21,Alphabet,US
 203177,2021,22,Hon Hai Precision Industry,TW
-004503,2021,23,Exxon Mobil,US
-017828,2021,24,Daimler,DE
+4503,2021,23,Exxon Mobil,US
+17828,2021,24,Daimler,DE
 ,2021,25,China Construction Bank,CN
-009899,2021,26,AT&T,US
-029028,2021,27,Costco Wholesale,US
-002547,2021,28,Cigna,US
+9899,2021,26,AT&T,US
+29028,2021,27,Costco Wholesale,US
+2547,2021,28,Cigna,US
 269783,2021,29,Agricultural Bank of China,CN
-002751,2021,30,Cardinal Health,US
+2751,2021,30,Cardinal Health,US
 ,2021,31,Trafigura Group,SG
 259503,2021,32,China Life Insurance,CN
-012141,2021,33,Microsoft,US
+12141,2021,33,Microsoft,US
 267407,2021,34,Glencore,CH
 ,2021,35,China Railway Engineering Group,CN
-011264,2021,36,Walgreens Boots Alliance,US
-016331,2021,37,EXOR Group,NL
-015724,2021,38,Allianz,DE
+11264,2021,36,Walgreens Boots Alliance,US
+16331,2021,37,EXOR Group,NL
+15724,2021,38,Allianz,DE
 267461,2021,39,Bank of China,CN
-006502,2021,40,Kroger,US
-005680,2021,41,Home Depot,US
+6502,2021,40,Kroger,US
+5680,2021,41,Home Depot,US
 288414,2021,42,China Railway Construction,CN
-002968,2021,43,JPMorgan Chase,US
+2968,2021,43,JPMorgan Chase,US
 ,2021,44,Huawei Investment & Holding,CN
-002131,2021,45,Verizon Communications,US
-063120,2021,46,AXA,FR
-004839,2021,47,Ford Motor,US
-005691,2021,48,Honda Motor,JP
-005073,2021,49,General Motors,US
+2131,2021,45,Verizon Communications,US
+63120,2021,46,AXA,FR
+4839,2021,47,Ford Motor,US
+5691,2021,48,Honda Motor,JP
+5073,2021,49,General Motors,US
 145046,2021,50,Anthem,US
 100555,2021,51,Mitsubishi,JP
-024625,2021,52,TotalEnergies,FR
+24625,2021,52,TotalEnergies,FR
 221616,2021,53,Deutsche Telekom,DE
 ,2021,54,BMW Group,DE
-007908,2021,55,Nippon Telegraph and Telephone,JP
-065662,2021,56,China Mobile Communications,CN
+7908,2021,55,Nippon Telegraph and Telephone,JP
+65662,2021,56,China Mobile Communications,CN
 145552,2021,57,Centene,US
 320611,2021,58,Japan Post Holdings,JP
-019744,2021,59,JD.com,CN
+19744,2021,59,JD.com,CN
 243804,2021,60,SAIC Motor,CN
 ,2021,61,China Communications Construction,CN
 ,2021,62,Fannie Mae,US
-020530,2021,63,Alibaba Group Holding,CN
-003226,2021,64,Comcast,US
+20530,2021,63,Alibaba Group Holding,CN
+3226,2021,64,Comcast,US
 ,2021,65,China Minmetals,CN
 ,2021,66,China FAW Group,CN
 ,2021,67,Hengli Group,CN
@@ -71,69 +71,69 @@ gvkey,fyear,Rank,Name,Country
 ,2021,70,Shandong Energy Group,CN
 100435,2021,71,Itochu,JP
 ,2021,72,China Baowu Steel Group,CN
-015804,2021,73,Assicurazioni Generali,IT
+15804,2021,73,Assicurazioni Generali,IT
 ,2021,74,China Post Group,CN
-002991,2021,75,Chevron,US
-014489,2021,76,Dell Technologies,US
-007647,2021,77,Bank of America,US
-003813,2021,78,Target,US
-016603,2021,79,Nestlé,CH
-006829,2021,80,Lowe's,US
+2991,2021,75,Chevron,US
+14489,2021,76,Dell Technologies,US
+7647,2021,77,Bank of America,US
+3813,2021,78,Target,US
+16603,2021,79,Nestlé,CH
+6829,2021,80,Lowe's,US
 186989,2021,81,Marathon Petroleum,US
-003243,2021,82,Citigroup,US
+3243,2021,82,Citigroup,US
 104607,2021,83,Hyundai Motor,KR
 206454,2021,84,Gazprom,RU
 274720,2021,85,Dongfeng Motor,CN
 170617,2021,86,Facebook (Meta Platforms Inc.),US
-023667,2021,87,Royal Ahold Delhaize,NL
-009818,2021,88,Sony,JP
-010920,2021,89,United Parcel Service,US
+23667,2021,87,Royal Ahold Delhaize,NL
+9818,2021,88,Sony,JP
+10920,2021,89,United Parcel Service,US
 ,2021,90,People's Insurance Co. of China,CN
 ,2021,91,China Southern Power Grid,CN
 142540,2021,92,China National Offshore Oil,CN
-024563,2021,93,Crédit Agricole,FR
-006266,2021,94,Johnson & Johnson,US
-005650,2021,95,Hitachi,JP
+24563,2021,93,Crédit Agricole,FR
+6266,2021,94,Johnson & Johnson,US
+5650,2021,95,Hitachi,JP
 100346,2021,96,Carrefour,FR
-015532,2021,97,BNP Paribas,FR
+15532,2021,97,BNP Paribas,FR
 ,2021,98,Bosch Group,DE
 100131,2021,99,Tesco,GB
 222398,2021,100,AEON,JP
 ,2021,101,China Energy Investment,CN
-015509,2021,102,HSBC Holdings,GB
-008007,2021,103,Wells Fargo,US
-005047,2021,104,General Electric,US
+15509,2021,102,HSBC Holdings,GB
+8007,2021,103,Wells Fargo,US
+5047,2021,104,General Electric,US
 ,2021,105,Electricité de France,FR
 122594,2021,106,State Farm Insurance,US
 ,2021,107,PowerChina,CN
-006008,2021,108,Intel,US
+6008,2021,108,Intel,US
 292783,2021,109,Sinopharm,CN
-027914,2021,110,Humana,US
+27914,2021,110,Humana,US
 268456,2021,111,Nippon Life Insurance,JP
 ,2021,112,COFCO,CN
 ,2021,113,Deutsche Post DHL Group,DE
-007471,2021,114,Mitsui,JP
+7471,2021,114,Mitsui,JP
 ,2021,115,CITIC Group,CN
-019113,2021,116,Nissan Motor,JP
-015677,2021,117,Munich Re Group,DE
+19113,2021,116,Nissan Motor,JP
+15677,2021,117,Munich Re Group,DE
 ,2021,118,Enel,IT
 294309,2021,119,Dai-ichi Life Holdings,JP
-014140,2021,120,Banco Santander,ES
-006066,2021,121,International Business Machines,US
+14140,2021,120,Banco Santander,ES
+6066,2021,121,International Business Machines,US
 293139,2021,122,China Evergrande Group,CN
 ,2021,123,U.S. Postal Service,US
 318900,2021,124,Beijing Automotive Group,CN
 206457,2021,125,Lukoil,RU
 254338,2021,126,China Telecommunications,CN
 ,2021,127,China North Industries Group,CN
-008762,2021,128,Procter & Gamble,US
+8762,2021,128,Procter & Gamble,US
 ,2021,129,SK,KR
 100590,2021,130,E.ON,DE
-008479,2021,131,PepsiCo,US
+8479,2021,131,PepsiCo,US
 270615,2021,132,Tencent Holdings,CN
-025645,2021,133,Albertsons,US
-017436,2021,134,BASF,DE
-004598,2021,135,FedEx,US
+25645,2021,133,Albertsons,US
+17436,2021,134,BASF,DE
+4598,2021,135,FedEx,US
 133768,2021,136,MetLife,US
 267462,2021,137,Bank of Communications,CN
 ,2021,138,Jinneng Holding Group,CN
@@ -142,27 +142,27 @@ gvkey,fyear,Rank,Name,Country
 ,2021,141,Freddie Mac,US
 243820,2021,142,Greenland Holding Group,CN
 170841,2021,143,Phillips 66,US
-006774,2021,144,Lockheed Martin,US
-003980,2021,145,Walt Disney,US
-001722,2021,146,Archer Daniels Midland (ADM),US
-025648,2021,147,Roche Group,CH
+6774,2021,144,Lockheed Martin,US
+3980,2021,145,Walt Disney,US
+1722,2021,146,Archer Daniels Midland (ADM),US
+25648,2021,147,Roche Group,CH
 260234,2021,148,Xiamen C&D,CN
 ,2021,149,Pacific Construction Group,CN
-019349,2021,150,Siemens,DE
+19349,2021,150,Siemens,DE
 260192,2021,151,Sinochem,CN
 220942,2021,152,Engie,FR
-015603,2021,153,Legal & General Group,GB
-007114,2021,154,Panasonic,JP
+15603,2021,153,Legal & General Group,GB
+7114,2021,154,Panasonic,JP
 207074,2021,155,Reliance Industries,IN
 ,2021,156,Brookfield Asset Management,CA
-015545,2021,157,Aviva,GB
+15545,2021,157,Aviva,GB
 287686,2021,158,China Pacific Insurance (Group),CN
 107225,2021,159,Lenovo Group,CN
 208017,2021,160,China Vanke,CN
 347194,2021,161,ChemChina,CN
 254023,2021,162,China Merchants Bank,CN
 208011,2021,163,China Merchants Group,CN
-015247,2021,164,Valero Energy,US
+15247,2021,164,Valero Energy,US
 100545,2021,165,Marubeni,JP
 100158,2021,166,ENEOS Holdings,JP
 101940,2021,167,Toyota Tsusho,JP
@@ -170,58 +170,58 @@ gvkey,fyear,Rank,Name,Country
 ,2021,169,Manulife Financial,CA
 272488,2021,170,Wuchan Zhongda Group,CN
 ,2021,171,Xiamen ITG Holding Group,CN
-015598,2021,172,Aegon,NL
-002285,2021,173,Boeing,US
+15598,2021,172,Aegon,NL
+2285,2021,173,Boeing,US
 ,2021,174,China Poly Group,CN
-010845,2021,175,Unilever,GB
+10845,2021,175,Unilever,GB
 925263,2021,176,Guangzhou Automobile Industry Group,CN
 275850,2021,177,China National Building Material Group,CN
 143356,2021,178,Prudential Financial,US
 220833,2021,179,Airbus,NL
 252940,2021,180,Mitsubishi UFJ Financial Group,JP
 241501,2021,181,Petrobras,BR
-005606,2021,182,HP,US
-010983,2021,183,Raytheon Technologies,US
+5606,2021,182,HP,US
+10983,2021,183,Raytheon Technologies,US
 204222,2021,184,SoftBank Group,JP
-015782,2021,185,Prudential PLC,GB
+15782,2021,185,Prudential PLC,GB
 225597,2021,186,Fortum,FI
 100688,2021,187,Tokyo Electric Power,JP
 273961,2021,188,Seven & I Holdings,JP
 ,2021,189,XMXYG,CN
-031521,2021,190,StoneX,US
+31521,2021,190,StoneX,US
 ,2021,191,Alimentation Couche-Tard,CA
 251303,2021,192,LG Electronics,KR
 114628,2021,193,Goldman Sachs Group,US
 324126,2021,194,China Everbright Group,CN
 269556,2021,195,Rosneft Oil,RU
 282483,2021,196,Industrial Bank,CN
-065248,2021,197,ArcelorMittal,LU
+65248,2021,197,ArcelorMittal,LU
 146352,2021,198,Aluminum Corp. of China,CN
-010247,2021,199,Sysco,US
+10247,2021,199,Sysco,US
 243868,2021,200,HBIS Group,CN
 243829,2021,201,Shanghai Pudong Development Bank,CN
 275108,2021,202,JBS,BR
-015784,2021,203,Société Générale,FR
-012124,2021,204,Morgan Stanley,US
+15784,2021,203,Société Générale,FR
+12124,2021,204,Morgan Stanley,US
 203666,2021,205,State Bank of India,IN
 249399,2021,206,PTT,TH
-022260,2021,207,HCA Healthcare,US
-015659,2021,208,Tokio Marine Holdings,JP
-014894,2021,209,Vodafone Group,GB
+22260,2021,207,HCA Healthcare,US
+15659,2021,208,Tokio Marine Holdings,JP
+14894,2021,209,Vodafone Group,GB
 201260,2021,210,Christian Dior,FR
 246116,2021,211,Wilmar International,SG
 212777,2021,212,Indian Oil,IN
 295735,2021,213,AIA Group,CN
 102296,2021,214,Vinci,FR
 104606,2021,215,Kia,KR
-061616,2021,216,ENI,IT
+61616,2021,216,ENI,IT
 201584,2021,217,KDDI,JP
 101310,2021,218,Novartis,CH
 210479,2021,219,Renault,FR
 317057,2021,220,Shaanxi Coal & Chemical Industry,CN
-020779,2021,221,Cisco Systems,US
+20779,2021,221,Cisco Systems,US
 296299,2021,222,Korea Electric Power,KR
-013683,2021,223,Telefónica,ES
+13683,2021,223,Telefónica,ES
 249482,2021,224,China Minsheng Banking,CN
 203024,2021,225,Jiangxi Copper,CN
 104598,2021,226,POSCO,KR
@@ -230,58 +230,58 @@ gvkey,fyear,Rank,Name,Country
 220940,2021,229,Orange,FR
 126136,2021,230,Charter Communications,US
 273240,2021,231,COSCO Shipping,CN
-007257,2021,232,Merck,US
+7257,2021,232,Merck,US
 ,2021,233,ELO Group,FR
 272126,2021,234,Shaanxi Yanchang Petroleum (Group),CN
 294932,2021,235,Pegatron,TW
 241637,2021,236,Anheuser-Busch InBev,BE
 142248,2021,237,América Móvil,MX
-002184,2021,238,Best Buy,US
+2184,2021,238,Best Buy,US
 ,2021,239,Zhejiang Geely Holding Group,CN
 ,2021,240,China State Shipbuilding,CN
 269809,2021,241,Talanx,DE
 127774,2021,242,New York Life Insurance,US
 208175,2021,243,Oil & Natural Gas,IN
-019112,2021,244,Denso,JP
-015779,2021,245,MS&AD Insurance Group Holdings,JP
+19112,2021,244,Denso,JP
+15779,2021,245,MS&AD Insurance Group Holdings,JP
 220546,2021,246,Equinor,NO
-016101,2021,247,AbbVie,US
-030747,2021,248,China Huaneng Group,CN
+16101,2021,247,AbbVie,US
+30747,2021,248,China Huaneng Group,CN
 100155,2021,249,Nippon Steel Corporation,JP
 ,2021,250,Royal Bank of Canada,CA
 ,2021,251,Taiwan Semiconductor Manufacturing,TW
 221614,2021,252,Deutsche Bahn,DE
 ,2021,253,Publix Super Markets,US
-028349,2021,254,Allstate,US
+28349,2021,254,Allstate,US
 323298,2021,255,Zhejiang Rongsheng Holding Group,CN
-019565,2021,256,Rio Tinto Group,GB
+19565,2021,256,Rio Tinto Group,GB
 163537,2021,257,Pemex,MX
 ,2021,258,Accenture,IE
 ,2021,259,Edeka Zentrale,DE
 137066,2021,260,China United Network Communications,CN
 101846,2021,261,Sumitomo,JP
 122575,2021,262,Liberty Mutual Insurance Group,US
-001487,2021,263,American International Group,US
-005180,2021,264,GlaxoSmithKline,GB
+1487,2021,263,American International Group,US
+5180,2021,264,GlaxoSmithKline,GB
 ,2021,265,Groupe BPCE,FR
 101811,2021,266,Saint-Gobain,FR
-015929,2021,267,Lloyds Banking Group,GB
-063546,2021,268,Swiss Re,CH
+15929,2021,267,Lloyds Banking Group,GB
+63546,2021,268,Swiss Re,CH
 221682,2021,269,Sberbank,RU
-010793,2021,270,Tyson Foods,US
+10793,2021,270,Tyson Foods,US
 210722,2021,271,Hanwha,KR
 100609,2021,272,Continental,DE
-013312,2021,273,BHP Group,AU
+13312,2021,273,BHP Group,AU
 100894,2021,274,Woolworths Group,AU
-013341,2021,275,Progressive,US
+13341,2021,275,Progressive,US
 101204,2021,276,Sanofi,FR
 295951,2021,277,Petronas,MY
-002403,2021,278,Bristol-Myers Squibb,US
+2403,2021,278,Bristol-Myers Squibb,US
 ,2021,279,Tsingshan Holding Group,CN
-030515,2021,280,Nationwide,US
-008530,2021,281,Pfizer,US
+30515,2021,280,Nationwide,US
+8530,2021,281,Pfizer,US
 ,2021,282,Shandong Weiqiao Pioneering Group,CN
-002817,2021,283,Caterpillar,US
+2817,2021,283,Caterpillar,US
 272242,2021,284,Sinomach,CN
 ,2021,285,TIAA,US
 ,2021,286,Ingka Group,NL
@@ -289,7 +289,7 @@ gvkey,fyear,Rank,Name,Country
 316100,2021,288,Midea Group,CN
 144435,2021,289,Bunge,US
 212782,2021,290,Fresenius,DE
-016348,2021,291,Intesa Sanpaolo,IT
+16348,2021,291,Intesa Sanpaolo,IT
 100332,2021,292,George Weston,CA
 ,2021,293,State Power Investment,CN
 209382,2021,294,Vale,BR
@@ -298,44 +298,44 @@ gvkey,fyear,Rank,Name,Country
 103292,2021,297,Maersk,DK
 103176,2021,298,ThyssenKrupp,DE
 101097,2021,299,Bouygues,FR
-019043,2021,300,Mitsubishi Electric,JP
+19043,2021,300,Mitsubishi Electric,JP
 320827,2021,301,China Energy Engineering Group,CN
 144496,2021,302,UBS Group,CH
 202183,2021,303,Finatis,FR
-012142,2021,304,Oracle,US
+12142,2021,304,Oracle,US
 165649,2021,305,Energy Transfer,US
-017830,2021,306,Daiwa House Industry,JP
+17830,2021,306,Daiwa House Industry,JP
 ,2021,307,China Aerospace Science & Technology,CN
 279190,2021,308,Jiangsu Shagang Group,CN
 ,2021,309,Zhejiang Hengyi Group,CN
-034443,2021,310,Dow,US
+34443,2021,310,Dow,US
 ,2021,311,Shenghong Holding Group,CN
-001447,2021,312,American Express,US
+1447,2021,312,American Express,US
 ,2021,313,Meiji Yasuda Life Insurance,JP
-019579,2021,314,J. Sainsbury,GB
+19579,2021,314,J. Sainsbury,GB
 ,2021,315,Anhui Conch Group,CN
-005046,2021,316,General Dynamics,US
-015576,2021,317,Deutsche Bank,DE
+5046,2021,316,General Dynamics,US
+15576,2021,317,Deutsche Bank,DE
 279449,2021,318,Idemitsu Kosan,JP
 100957,2021,319,Iberdrola,ES
 ,2021,320,China Aerospace Science & Industry,CN
-007906,2021,321,Nike,US
-030580,2021,322,Itaú Unibanco Holding,BR
+7906,2021,321,Nike,US
+30580,2021,322,Itaú Unibanco Holding,BR
 ,2021,323,ZF Friedrichshafen,DE
 228418,2021,324,Quanta Computer,TW
-010137,2021,325,Sumitomo Mitsui Financial Group,JP
-007985,2021,326,Northrop Grumman,US
-011217,2021,327,Volvo,SE
+10137,2021,325,Sumitomo Mitsui Financial Group,JP
+7985,2021,326,Northrop Grumman,US
+11217,2021,327,Volvo,SE
 270738,2021,328,Suning.com Group,CN
 324977,2021,329,Metro,DE
 ,2021,330,USAA,US
-015933,2021,331,Sompo Holdings,JP
+15933,2021,331,Sompo Holdings,JP
 272278,2021,332,Yango Longking Group,CN
 100966,2021,333,Chubb,CH
 ,2021,334,China Electronics,CN
 ,2021,335,Heraeus Holding,DE
 252332,2021,336,Jinchuan Group,CN
-015181,2021,337,Banco Bilbao Vizcaya Argentaria,ES
+15181,2021,337,Banco Bilbao Vizcaya Argentaria,ES
 327599,2021,338,Xiaomi,CN
 200935,2021,339,Compal Electronics,TW
 ,2021,340,Deere,US
@@ -343,12 +343,12 @@ gvkey,fyear,Rank,Name,Country
 267620,2021,342,DZ Bank,DE
 ,2021,343,Taikang Insurance Group,CN
 239398,2021,344,China Taiping Insurance Group,CN
-012673,2021,345,Barclays,GB
+12673,2021,345,Barclays,GB
 201066,2021,346,Cathay Financial Holding,TW
 100012,2021,347,Mitsubishi Heavy Industries,JP
 282327,2021,348,Rajesh Exports,IN
 231822,2021,349,CRRC Group,CN
-001078,2021,350,Abbott Laboratories,US
+1078,2021,350,Abbott Laboratories,US
 ,2021,351,China South Industries Group,CN
 236025,2021,352,China Huadian,CN
 101088,2021,353,CK Hutchison Holdings,CN
@@ -356,40 +356,40 @@ gvkey,fyear,Rank,Name,Country
 233320,2021,355,Poste Italiane,IT
 ,2021,356,SNCF Group,FR
 203890,2021,357,Tata Motors,IN
-018467,2021,358,Fujitsu,JP
+18467,2021,358,Fujitsu,JP
 272591,2021,359,Cedar Holdings Group,CN
 ,2021,360,Northwestern Mutual,US
-004016,2021,361,Dollar General,US
+4016,2021,361,Dollar General,US
 ,2021,362,Louis Dreyfus,NL
 251352,2021,363,Shanghai Construction Group,CN
 295628,2021,364,Sunac China Holdings,CN
 102240,2021,365,Aisin,JP
-030501,2021,366,KB Financial Group,KR
+30501,2021,366,KB Financial Group,KR
 101846,2021,367,Sumitomo Life Insurance,JP
 302921,2021,368,British American Tobacco,GB
-008539,2021,369,Exelon,US
-003144,2021,370,Coca-Cola,US
+8539,2021,369,Exelon,US
+3144,2021,370,Coca-Cola,US
 319832,2021,371,China National Nuclear,CN
 ,2021,372,Magna International,CA
-100424,2021,372,Jardine Matheson,CN
-001300,2021,374,Honeywell International,US
+100424,2021,373,Jardine Matheson,CN
+1300,2021,374,Honeywell International,US
 ,2021,375,Jingye Group,CN
 ,2021,376,Bank of Nova Scotia,CA
 101642,2021,377,Phoenix Pharma,DE
-028838,2021,378,Credit Suisse Group,CH
+28838,2021,378,Credit Suisse Group,CH
 ,2021,379,Sun Life Financial,CA
-010530,2021,380,Thermo Fisher Scientific,US
-015319,2021,381,Repsol,ES
-007435,2021,382,3M,US
-011672,2021,383,TJX,US
+10530,2021,380,Thermo Fisher Scientific,US
+15319,2021,381,Repsol,ES
+7435,2021,382,3M,US
+11672,2021,383,TJX,US
 270683,2021,384,Shandong Iron & Steel Group,CN
-062689,2021,385,Travelers,US
+62689,2021,385,Travelers,US
 205162,2021,386,Migros Group,CH
-100581,2021,387,L’Oréal,FR
+100581,2021,387,LOréal,FR
 249738,2021,388,Fubon Financial Holding,TW
-030990,2021,389,Capital One Financial,US
+30990,2021,389,Capital One Financial,US
 348640,2021,390,New Hope Holding Group,CN
-015617,2021,391,ING Group,NL
+15617,2021,391,ING Group,NL
 184996,2021,392,Tesla,US
 ,2021,393,CMA CGM,FR
 223029,2021,394,Bharat Petroleum,IN
@@ -397,9 +397,9 @@ gvkey,fyear,Rank,Name,Country
 258458,2021,396,Shenzhen Investment Holdings,CN
 ,2021,397,Coop Group,CH
 203215,2021,398,Hyundai Mobis,KR
-015508,2021,399,Anglo American,GB
+15508,2021,399,Anglo American,GB
 252015,2021,400,Ansteel Group,CN
-019045,2021,401,Mitsubishi Chemical Holdings,JP
+19045,2021,401,Mitsubishi Chemical Holdings,JP
 340153,2021,402,Siemens Energy,DE
 251371,2021,403,Shanxi Coking Coal Group,CN
 253738,2021,404,JFE Holdings,JP
@@ -412,59 +412,59 @@ gvkey,fyear,Rank,Name,Country
 ,2021,411,Shougang Group,CN
 101155,2021,412,Suzuki Motor,JP
 238616,2021,413,Veolia Environnement,FR
-002721,2021,414,Canon,JP
+2721,2021,414,Canon,JP
 310396,2021,415,New China Life Insurance,CN
 294611,2021,416,Samsung Life Insurance,KR
 100302,2021,417,Kansai Electric Power,JP
 ,2021,418,Enbridge,CA
 ,2021,419,Medtronic,IE
-010622,2021,420,Toshiba,JP
+10622,2021,420,Toshiba,JP
 258176,2021,421,Wistron,TW
 179621,2021,422,Philip Morris International,US
-001773,2021,423,Arrow Electronics,US
+1773,2021,423,Arrow Electronics,US
 101336,2021,424,Schneider Electric,FR
 260654,2021,425,Weichai Power,CN
-030452,2021,426,Banco Bradesco,BR
+30452,2021,426,Banco Bradesco,BR
 288153,2021,427,Phoenix Group Holdings,GB
 287744,2021,428,Hailiang Group,CN
 ,2021,429,CHS,US
 ,2021,430,China General Technology,CN
 ,2021,431,Beijing Jianlong Heavy Industry Group,CN
-007652,2021,432,NEC,JP
+7652,2021,432,NEC,JP
 278371,2021,433,Zhejiang Communications Investment Group,CN
 100369,2021,434,Bridgestone,JP
 345798,2021,435,China Datang,CN
-002411,2021,436,BT Group,GB
+2411,2021,436,BT Group,GB
 260126,2021,437,Shanghai Pharmaceuticals Holding,CN
 ,2021,438,LyondellBasell Industries,NL
 271755,2021,439,Guangxi Investment Group,CN
 100450,2021,440,Chubu Electric Power,JP
-015444,2021,441,CRH,IE
-019413,2021,442,Sumitomo Electric Industries,JP
+15444,2021,441,CRH,IE
+19413,2021,442,Sumitomo Electric Industries,JP
 205343,2021,443,Financière de l'Odet,FR
 ,2021,444,Xinjiang Guanghui Industry Investment,CN
 163896,2021,445,X5 Retail Group,NL
-028195,2021,446,Jabil,US
+28195,2021,446,Jabil,US
 100037,2021,447,Linde,GB
 112876,2021,448,Enterprise Products Partners,US
 100548,2021,449,Mazda Motor,JP
 201171,2021,450,CJ Corp.,KR
 282040,2021,451,China National Coal Group,CN
 204049,2021,452,SK Hynix,KR
-026156,2021,453,Hewlett Packard Enterprise,US
-017452,2021,454,Danone,FR
+26156,2021,453,Hewlett Packard Enterprise,US
+17452,2021,454,Danone,FR
 ,2021,455,Achmea,NL
 293282,2021,456,Longfor Group Holdings,CN
-063927,2021,457,United Natural Foods,US
+63927,2021,457,United Natural Foods,US
 213423,2021,458,Centrica,GB
-018466,2021,459,Subaru,JP
+18466,2021,459,Subaru,JP
 ,2021,460,Guangzhou Municipal Construction Group,CN
 245036,2021,461,LG Chem,KR
-028272,2021,462,AstraZeneca,GB
+28272,2021,462,AstraZeneca,GB
 142953,2021,463,Mondelez International,US
 ,2021,464,Boehringer Ingelheim,DE
-013714,2021,465,ViacomCBS,US
-005568,2021,466,Kraft Heinz,US
+13714,2021,465,ViacomCBS,US
+5568,2021,466,Kraft Heinz,US
 203442,2021,467,Koç Holding,TR
 ,2021,468,Guangzhou Pharmaceutical Holdings,CN
 272365,2021,469,Olam International,SG
@@ -473,29 +473,29 @@ gvkey,fyear,Rank,Name,Country
 ,2021,472,Bank of Montreal,CA
 318847,2021,473,Samsung C&T,KR
 317478,2021,474,WH Group,CN
-031587,2021,475,Dollar Tree,US
-001602,2021,476,Amgen,US
+31587,2021,475,Dollar Tree,US
+1602,2021,476,Amgen,US
 243090,2021,477,Compass Group,GB
 329498,2021,478,Coles Group,AU
-004723,2021,479,U.S. Bancorp,US
+4723,2021,479,U.S. Bancorp,US
 ,2021,480,Ericsson,SE
 260196,2021,481,Huayang New Material Technology Group,CN
-030581,2021,482,Banco do Brasil,BR
-028787,2021,483,Performance Food Group,US
+30581,2021,482,Banco do Brasil,BR
+28787,2021,483,Performance Food Group,US
 147579,2021,484,Netflix,US
-023671,2021,485,Nokia,FI
+23671,2021,485,Nokia,FI
 259543,2021,486,Zijin Mining Group,CN
-063477,2021,487,BAE Systems,GB
+63477,2021,487,BAE Systems,GB
 259980,2021,488,Gree Electric Appliances,CN
-024856,2021,489,Gilead Sciences,US
+24856,2021,489,Gilead Sciences,US
 156155,2021,490,TD Synnex,US
-015549,2021,491,UniCredit Group,IT
+15549,2021,491,UniCredit Group,IT
 101304,2021,492,Holcim,CH
-016281,2021,493,Mapfre Group,ES
+16281,2021,493,Mapfre Group,ES
 250447,2021,494,Alfresa Holdings,JP
-006730,2021,495,Eli Lilly,US
-011856,2021,496,Truist Financial,US
+6730,2021,495,Eli Lilly,US
+11856,2021,496,Truist Financial,US
 318920,2021,497,China Reinsurance (Group),CN
-024512,2021,498,Commonwealth Bank of Australia,AU
+24512,2021,498,Commonwealth Bank of Australia,AU
 ,2021,499,Flex,SG
-009155,2021,500,Rite Aid,US
+9155,2021,500,Rite Aid,US
