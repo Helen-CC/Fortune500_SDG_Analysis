@@ -26,6 +26,8 @@ sdg_data <- sdg_data %>%
 
 str(sdg_data)
 sdg_data$gvkey %>% as.numeric() %>% summary()
+
+
 # TODO: figure out whether multiple NAICS code is a problem
 # duplications: a firm having more than one NAICS code
 sdg_data %>%
@@ -33,13 +35,20 @@ sdg_data %>%
   count() %>%
   drop_na() %>%
   arrange(desc(n)) %>%
-  filter(n > 1)
+  filter(n > 1) %>%
+  pull(gvkey) %>%
+  unique()
+
+# manually clean up
+sdg_data <- sdg_data %>%
+  filter(!(gvkey == 101846 & naics != 51))
 
 sdg_data %>%
-  group_by(gvkey, year, sdg_number, naics) %>%
+  group_by(gvkey, year, sdg_number) %>%
   count() %>%
   drop_na() %>%
-  arrange(desc(n)) 
+  arrange(desc(n)) %>%
+  filter(n > 1)
 
 #' @section import Compustat data and convert currencies
 firm_characteristics_us <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_us.csv"))
@@ -89,19 +98,45 @@ firm_characteristics_glob_converted <- firm_characteristics_glob_converted %>%
 # Merge US, global firm characteristics with keyword counts
 df_merged <- firm_characteristics_us %>% 
   select(gvkey, fyear, conm, at, revt, emp, naics, sic) %>%
-  full_join(firm_characteristics_glob_converted) 
+  full_join(firm_characteristics_glob_converted) %>%
+  distinct() %>%
+  # label the dupes
+  group_by(gvkey, fyear) %>%
+  mutate(dup_id = row_number()) %>%
+  ungroup() %>%
+  # remove the rows with dup_id > 1
+  filter(dup_id == 1)
+
+df_merged %>%
+  group_by(gvkey, fyear) %>%
+  count() %>%
+  drop_na() %>%
+  arrange(desc(n)) %>%
+  filter(n > 1)
+
 
 df_merged <- df_merged %>%
+  mutate(gvkey = as.numeric(gvkey)) %>%
   left_join(sdg_data %>%
               select(gvkey, rank, year, sdg, sdg_number, 
                      country = Country, n_keyword, naics_self = naics),
             join_by(gvkey == gvkey, closest(fyear <= year))) 
 
+df_merged %>%
+  group_by(gvkey, fyear, sdg) %>%
+  count() %>%
+  drop_na() %>%
+  arrange(desc(n)) %>%
+  filter(n > 1)
+
+
 df_merged <- df_merged %>%
   # create sic2 industry classification
   mutate(sic2 = stringr::str_sub(sic, 1, 2)) %>%
   # drop uncessary variables
-  select(-fyear)
+  # select(-fyear)
+  # make sure fyear and year aligns
+  filter(fyear == year)
   
 #' save merged data
 #' at `(firm, year, sdg, keyword_count)` level
