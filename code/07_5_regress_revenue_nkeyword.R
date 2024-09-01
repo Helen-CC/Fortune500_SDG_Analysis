@@ -271,3 +271,42 @@ etable(reg.H_naics_mining, reg.H_naics_nonmining, coefstat = "tstat")
 save_reg_table(reg.H_naics_mining, "tab_reg_revt_on_nkeywords_H_naics_miningfirms")
 save_reg_table(reg.H_naics_nonmining, "tab_reg_revt_on_nkeywords_H_naics_non-miningfirms")
 
+
+#' for comparison
+reg.I_naics <- feols(revt ~ is_mining 
+                     # + sum_n_keyword + sum_n_keyword * is_mining
+                     # + sw(sum_n_keyword + sum_n_keyword, 
+                     #           sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                     #           + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                     #           + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                     #           + sdg14_count + sdg15_count + sdg16_count) 
+                     # + at + emp
+                     , 
+               vcov = "HC1",
+               data = df_firmyear)
+reg.I_naics_mining <- feols(revt ~ 1
+                              # sum_n_keyword 
+                     # + sw(sum_n_keyword + sum_n_keyword, 
+                     #           sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                     #           + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                     #           + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                     #           + sdg14_count + sdg15_count + sdg16_count) 
+                     # + at + emp
+                     , 
+               vcov = "HC1",
+               data = df_firmyear %>% filter(gvkey %in% gvkeys_mining))
+reg.I_naics_nonmining <- feols(revt ~ 1
+                                 # sum_n_keyword 
+                     # + sw(sum_n_keyword + sum_n_keyword, 
+                     #           sdg0_count + sdg1_count + sdg2_count + sdg3_count
+                     #           + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+                     #           + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+                     #           + sdg14_count + sdg15_count + sdg16_count) 
+                     # + at + emp
+                     , 
+               vcov = "HC1",
+               data = df_firmyear %>% filter(!gvkey %in% gvkeys_mining))
+
+etable(reg.I_naics, reg.I_naics_mining, reg.I_naics_nonmining)
+
+
