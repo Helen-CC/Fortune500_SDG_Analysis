@@ -1,6 +1,10 @@
 rm(list = ls())
 library(fixest)
 library(readr)
+library(stringr)
+library(dplyr)
+library(dtplyr)
+library(tidyr)
 source("./code/config.R")
 #' Load data
 #' at `(firm, year, sdg, keyword_count)` level
@@ -10,6 +14,11 @@ df_merged <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.R
 # Only focusing on mining firms
 gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
 gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
+
+gvkey_to_exclud <- c(272126, # Shaanxi
+                     212777, # INDIAN OIL CORP LTD
+                     208175  # OIL & NATURAL GAS CORP LTD
+                     )
 
 df_merged <- df_merged %>%
   mutate(is_mining = ifelse(gvkey %in% gvkeys_mining, 1, 0))
@@ -309,4 +318,51 @@ reg.I_naics_nonmining <- feols(revt ~ 1
 
 etable(reg.I_naics, reg.I_naics_mining, reg.I_naics_nonmining)
 
+
+
+#' #' @section Remove mining firms from China and India
+#' 
+#' # run regressions on two different sub-samples
+#' reg.J_naics_mining <- feols(revt ~ sw(sum_n_keyword, 
+#'                                       sdg0_count + sdg1_count + sdg2_count + sdg3_count
+#'                                       + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+#'                                       + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+#'                                       + sdg14_count + sdg15_count + sdg16_count) 
+#'                             + at + emp | year, 
+#'                             vcov = "HC1",
+#'                             data = df_firmyear %>% 
+#'                               filter(gvkey %in% gvkeys_mining) %>%
+#'                               filter(!gvkey %in% gvkey_to_exclud))
+#' reg.J_naics_nonmining <- feols(revt ~ sw(sum_n_keyword, 
+#'                                          sdg0_count + sdg1_count + sdg2_count + sdg3_count
+#'                                          + sdg4_count + sdg5_count + sdg6_count + sdg7_count + sdg8_count 
+#'                                          + sdg9_count + sdg10_count + sdg11_count + sdg12_count + sdg13_count 
+#'                                          + sdg14_count + sdg15_count + sdg16_count) 
+#'                                + at + emp | year, 
+#'                                vcov = "HC1",
+#'                                data = df_firmyear %>% 
+#'                                  filter(!gvkey %in% gvkeys_mining) %>%
+#'                                  filter(!gvkey %in% gvkey_to_exclud))
+#' etable(reg.J_naics_mining, reg.J_naics_nonmining, coefstat = "tstat")
+#' 
+#' 
+#' # firm-year-SDG category level
+#' reg.C_naics <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(year, naics2), 
+#'                      vcov = "HC1",
+#'                      data = df_merged %>%
+#'                        filter(gvkey %in% gvkeys_mining)) 
+#' reg.C_naics_2 <- feols(revt ~ n_keyword + at + emp + i(sdg) - 1| csw0(year, naics2), 
+#'                      vcov = "HC1",
+#'                      data = df_merged %>%
+#'                        filter(gvkey %in% gvkeys_mining))
+#' 
+#' reg.D_naics <- feols(revt ~ n_keyword + at + emp + is_mining | csw0(sdg, year, naics2), 
+#'                      vcov = "HC1",
+#'                      data = df_merged %>%
+#'                        filter(gvkey %in% gvkeys_mining) %>%
+#'                        filter(!gvkey %in% gvkey_to_exclud))
+#' 
+#' 
+#' etable(reg.C_naics, reg.C_naics_2, coefstat = "tstat")
+#' etable(reg.D_naics, coefstat = "tstat")
 
