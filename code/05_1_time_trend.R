@@ -64,7 +64,7 @@ df.plot <- df %>%
 ## Pick a company
 ## TODO: input a company's rank
 AVAILABLE_COMPANIES <- df %>% select(name, rank) %>% distinct()
-company_rank <- 256
+company_rank <- 195
 company_name <- AVAILABLE_COMPANIES %>% filter(rank == company_rank) %>% pull(name)
 
 label_data <- df.plot |> 
@@ -96,7 +96,7 @@ top_5_sdg <- df.plot %>%
   pull(sdg)
 
 # scale the range of y-axis
-y_max <- max(df.plot$ratio) * 0.75
+y_max <- max(df.plot$ratio) * 3
 # Plot the data
 p1 <- df.plot %>% 
   filter(rank == company_rank) %>% 
