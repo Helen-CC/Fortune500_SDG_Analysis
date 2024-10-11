@@ -82,9 +82,20 @@ df.long <- df.combine %>%
 #             by = c("rank", "name")
 #             ) %>%
 #   mutate(per_keyword = n_keyword/n)
+
+# \begin{align*}
+# \text{heatmap percentage}_{i, j} = \frac{ \sum_{t=1}^{T} \text{keyword mention}_{i, j, t} }{ \sum_{t=1}^{T} \text{all words in doc}_{i, j, t} }
+# \end{align*}
+
 df.long_join <- df.long %>% 
   left_join(df.wordlen, by = c("rank", "name")) %>%
-  mutate(per_keyword = n_keyword/n)
+  # sum keyword mention_{ijt} over t / sum total word in doc_{ijt} over t
+  mutate(per_keyword = n_keyword/n) %>%
+  # sum keyword mention alt_{ijt} over t / sum total keyword in doc_{ijt} over jt 
+  group_by(rank, name) %>%
+  mutate(n_alt = sum(n_keyword),
+         per_keyword_alt = n_keyword / n_alt) %>%
+  ungroup()
 
 # Plot
 df.plot <- df.long_join %>%
@@ -152,4 +163,49 @@ p1 %>%
          units = "in",
          # 調圖片長寬比（圖片大小）
          height = 7, width = 15)
+
+#' @section denominator is the sum of all SDG keywords instead of number of words in the doc
+# sort companies by NAICS code
+p2 <- df.plot %>%
+  ggplot(aes(x = name, y = sdg, fill = per_keyword_alt)) + 
+  # grid plot
+  geom_tile() +
+  coord_flip() +
+  #theme_bw() +
+  #theme_minimal() +
+  theme_linedraw() +
+  scale_linetype(guide = "none") +
+  scale_fill_gradient(low = "snow", high = "navy", # change color
+                      labels = scales::percent
+                      #breaks=c(0, 1) # breaks indicate percentile
+  ) +
+  labs(x = "Company", y = "SDG", 
+       title = "Mining, Quarrying, and Oil and Gas Extraction", 
+       fill = "percentage") +
+  # fill in colors in blank grids
+  theme(panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), 
+        #axis.line = element_line(colour = "black") #axis line bold and black
+        ) +
+  theme(legend.position="bottom",
+        #這兩行調x y 軸字大小
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12)) #+
+  
+# set font
+  # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
+  #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
+  #       text = element_text(family = "Noto Sans CJK TC Medium"))
+p2
+
+## Save plot
+p2 %>% 
+  ggsave(filename = paste0("./data/result/fig_heatmap_alt_NAICS", NAICS2, ".png"), 
+         device = "png",
+         dpi = 300, 
+         units = "in",
+         # 調圖片長寬比（圖片大小）
+         height = 7, width = 15)
+
 
