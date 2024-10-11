@@ -120,7 +120,7 @@ p1 <- df.plot %>%
   #theme_minimal() +
   theme_linedraw() +
   scale_linetype(guide = "none") +
-  scale_fill_gradient(low = "snow", high = "navy", # change color
+  scale_fill_gradient(low = "snow", high = "red3", # change color
                       labels = scales::percent
                       #breaks=c(0, 1) # breaks indicate percentile
   ) +
@@ -135,8 +135,14 @@ p1 <- df.plot %>%
         ) +
   theme(legend.position="bottom",
         #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12)) #+
+        axis.text.y = element_text(size = 22),
+        axis.text.x = element_text(size = 20),
+        #這兩行調圖片title字大小
+        plot.title = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        legend.text = element_text(size = 20, color = "red"),
+        legend.title = element_text(size = 20, face = "bold.italic")) #+
   
 # set font
   # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
@@ -151,5 +157,5 @@ p1 %>%
          dpi = 300, 
          units = "in",
          # 調圖片長寬比（圖片大小）
-         height = 7, width = 15)
+         height = 10, width = 16)
 
