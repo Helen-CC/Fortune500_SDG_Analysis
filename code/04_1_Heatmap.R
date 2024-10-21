@@ -137,7 +137,7 @@ p1 <- df.plot %>%
   ) +
   labs(x = "Company", y = "SDG", 
        title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "percentage") +
+       fill = "Percentage (%)") +
   # fill in colors in blank grids
   theme(panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
@@ -146,14 +146,14 @@ p1 <- df.plot %>%
         ) +
   theme(legend.position="bottom",
         #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 22),
-        axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 16),
         #這兩行調圖片title字大小
-        plot.title = element_text(size = 20),
+        plot.title = element_text(size = 24),
         axis.title.x = element_text(size = 20),
         axis.title.y = element_text(size = 20),
-        legend.text = element_text(size = 20),
-        legend.title = element_text(size = 20)) #+
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 18)) #+
   
 # set font
   # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
@@ -165,10 +165,10 @@ p1
 p1 %>% 
   ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2, ".png"), 
          device = "png",
-         dpi = 300, 
+         dpi = 600, 
          units = "in",
          # 調圖片長寬比（圖片大小）
-         height = 10, width = 16)
+         height = 9, width = 19)
 
 #' @section denominator is the sum of all SDG keywords instead of number of words in the doc
 # sort companies by NAICS code
@@ -187,18 +187,28 @@ p2 <- df.plot %>%
   ) +
   labs(x = "Company", y = "SDG", 
        title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "percentage") +
+       fill = "Percentage") +
   # fill in colors in blank grids
   theme(panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
         panel.background = element_blank(), 
         #axis.line = element_line(colour = "black") #axis line bold and black
         ) +
+  # theme(legend.position="bottom",
+  #       #這兩行調x y 軸字大小
+  #       axis.text.y = element_text(size = 12),
+  #       axis.text.x = element_text(size = 12)) #+
   theme(legend.position="bottom",
         #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 12),
-        axis.text.x = element_text(size = 12)) #+
-  
+        axis.text.y = element_text(size = 18),
+        axis.text.x = element_text(size = 16),
+        #這兩行調圖片title字大小
+        plot.title = element_text(size = 24),
+        axis.title.x = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        legend.text = element_text(size = 9),
+        legend.title = element_text(size = 18)) #+
+
 # set font
   # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
   #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
@@ -209,9 +219,9 @@ p2
 p2 %>% 
   ggsave(filename = paste0("./data/result/fig_heatmap_alt_NAICS", NAICS2, ".png"), 
          device = "png",
-         dpi = 300, 
+         dpi = 600, 
          units = "in",
          # 調圖片長寬比（圖片大小）
-         height = 7, width = 15)
+         height = 9, width = 19)
 
 
