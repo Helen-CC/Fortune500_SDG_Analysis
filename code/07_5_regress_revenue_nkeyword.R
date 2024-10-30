@@ -280,6 +280,7 @@ etable(reg.H_naics_mining, reg.H_naics_nonmining, coefstat = "tstat")
 save_reg_table(reg.H_naics_mining, "tab_reg_revt_on_nkeywords_H_naics_miningfirms")
 save_reg_table(reg.H_naics_nonmining, "tab_reg_revt_on_nkeywords_H_naics_non-miningfirms")
 
+save_reg_table(list(reg.H_naics_mining, reg.H_naics_nonmining), "tab_reg_revt_on_nkeywords_H_naics_both")
 
 #' for comparison
 reg.I_naics <- feols(revt ~ is_mining 
