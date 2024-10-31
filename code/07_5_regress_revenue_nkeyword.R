@@ -278,6 +278,27 @@ etable(reg.H_naics_mining, reg.H_naics_nonmining, coefstat = "tstat")
 save_reg_table(reg.H_naics_mining, "tab_reg_revt_on_nkeywords_H_naics_miningfirms")
 save_reg_table(reg.H_naics_nonmining, "tab_reg_revt_on_nkeywords_H_naics_non-miningfirms")
 
+save_reg_table(list(reg.H_naics_mining, reg.H_naics_nonmining), "tab_reg_revt_on_nkeywords_H_naics_both")
+
+df_firmyear %>%
+  filter(gvkey %in% gvkeys_mining) %>%
+  ggplot(aes(sum_n_keyword, revt)) +
+  geom_point()+
+  geom_smooth(method = "lm", level = 0.95) # 95% C.I. 
+lm(revt ~ sum_n_keyword, data = df_firmyear %>% filter(gvkey %in% gvkeys_mining)) %>% summary()
+
+df_firmyear %>%
+  filter(gvkey %in% gvkeys_mining) %>%
+  ggplot(aes(sdg13_count, revt)) +
+  geom_point() +
+  geom_smooth(method = "lm", level = 0.95) 
+
+df_firmyear %>%
+  filter(gvkey %in% gvkeys_mining) %>%
+  select(gvkey, conm, year, revt, sum_n_keyword) %>%
+  write_csv("./data/result/tables/mining_firm_revt_sum_n_keyword.csv")
+
+
 #' for comparison
 reg.I_naics <- feols(revt ~ is_mining 
                      # + sum_n_keyword + sum_n_keyword * is_mining
