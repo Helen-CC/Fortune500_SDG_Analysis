@@ -170,7 +170,6 @@ save_reg_table(reg.B_naics, "tab_reg_revt_on_nkeywords_B_naics")
 save_reg_table(reg.B_sic2, "tab_reg_revt_on_nkeywords_B_sic2")
 
 
-
 reg.C_naics <- feols(revt ~ n_keyword + at + emp + is_mining + i(sdg) - 1| csw0(year, naics2), 
               vcov = "HC1",
               data = df_merged)
@@ -206,7 +205,6 @@ save_reg_table(reg.D_naics, "tab_reg_revt_on_nkeywords_mining_D_naics")
 save_reg_table(reg.D_sic2, "tab_reg_revt_on_nkeywords_mining_D_sic2")
 save_reg_table(reg.E_naics, "tab_reg_revt_on_nkeywords_mining_E_naics")
 save_reg_table(reg.E_sic2, "tab_reg_revt_on_nkeywords_mining_E_sic2")
-
 
 
 reg.F_naics <- feols(revt ~ sw(sum_n_keyword, 
@@ -279,7 +277,6 @@ reg.H_naics_nonmining <- feols(revt ~ sw(sum_n_keyword,
 etable(reg.H_naics_mining, reg.H_naics_nonmining, coefstat = "tstat")
 save_reg_table(reg.H_naics_mining, "tab_reg_revt_on_nkeywords_H_naics_miningfirms")
 save_reg_table(reg.H_naics_nonmining, "tab_reg_revt_on_nkeywords_H_naics_non-miningfirms")
-
 
 #' for comparison
 reg.I_naics <- feols(revt ~ is_mining 
