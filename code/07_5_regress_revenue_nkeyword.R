@@ -282,16 +282,17 @@ save_reg_table(list(reg.H_naics_mining, reg.H_naics_nonmining), "tab_reg_revt_on
 
 df_firmyear %>%
   filter(gvkey %in% gvkeys_mining) %>%
-  ggplot(aes(sum_n_keyword, revt)) +
+  ggplot(aes(sdg13_count, revt)) +
   geom_point()+
   geom_smooth(method = "lm", level = 0.95) # 95% C.I. 
 lm(revt ~ sum_n_keyword, data = df_firmyear %>% filter(gvkey %in% gvkeys_mining)) %>% summary()
 
 df_firmyear %>%
   filter(gvkey %in% gvkeys_mining) %>%
-  ggplot(aes(sdg13_count, revt)) +
+  ggplot(aes(sdg5_count, revt)) +
   geom_point() +
-  geom_smooth(method = "lm", level = 0.95) 
+  geom_smooth(method = "lm", level = 0.95)
+lm(revt ~ sdg5_count, data = df_firmyear %>% filter(gvkey %in% gvkeys_mining)) %>% summary()
 
 df_firmyear %>%
   filter(gvkey %in% gvkeys_mining) %>%
