@@ -125,3 +125,33 @@ testParseFilenameFromPath <- function() {
 
 testParseFilenameFromPath()
 
+
+getComplementaryIndexKeywords <- function(EXCEL_PATH = "./data/raw_data/Complementarity_independence_pressure_keywords.xlsx"){
+  "
+  Description:
+    the function load the excel file that the keyword list of complementary, independence, and pressure indices keywords 
+    return a named list stores the three sets of keywords
+  "
+  ## Load company Rank and NAICS code mapping
+  df.indices_keywords <- readxl::read_excel(EXCEL_PATH, sheet = "Sheet1") %>% 
+    select(complementary = `Complementarity`,
+           independent = `Independence`, 
+           pressure = `Pressure`)
+  n_rows = nrow(df.indices_keywords)
+  df.indices_keywords <- df.indices_keywords %>% .[3:n_rows,]
+  
+  indicies_keyword_list <- list(
+    complementary = df.indices_keywords %>% pull(complementary) %>% .[!is.na(.)],
+    independent = df.indices_keywords %>% pull(independent) %>% .[!is.na(.)],
+    pressure = df.indices_keywords %>% pull(pressure) %>% .[!is.na(.)]
+  )
+  
+  return(indicies_keyword_list)
+}
+
+# list_tmp <- getComplementaryIndexKeywords("./data/raw_data/Complementarity_independence_pressure_keywords.xlsx")
+# list_tmp[["complementary"]]
+# list_tmp[["independent"]]
+# list_tmp[["pressure"]]
+
+
