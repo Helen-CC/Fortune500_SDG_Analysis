@@ -33,22 +33,39 @@ gvkey_list = ", ".join(f"'{g:06d}'" for g in gvkeys)
 print(f"Total unique gvkeys: {len(gvkeys)}")
 
 # Variables to fetch
-# at   : total assets
-# revt : total revenue
-# emp  : employees (thousands)
-# ni   : net income
-# prcc_f : fiscal-year-end closing price
-# csho : common shares outstanding
-# dltt : long-term debt (total)
-# dlc  : debt in current liabilities
+# at     : total assets
+# sale   : sales/turnover (net) — may differ from revt for some firms
+# revt   : total revenue
+# emp    : employees (thousands)
+# ni     : net income (nicon in g_funda)
+# ib     : income before extraordinary items
+# oiadp  : operating income after depreciation
+# ceq    : common/ordinary equity total (book value)
+# pstk   : preferred stock total
+# prcc_f : fiscal-year-end closing price (NA only; absent in g_funda)
+# csho   : common shares outstanding (csho in funda; cshoi in g_funda)
+# dltt   : long-term debt total
+# dlc    : debt in current liabilities
+# fic    : country of incorporation (ISO code)
+# costat : active/inactive company status
 # (ROA = ni/at, ROS = ni/revt, Tobin's Q ≈ (prcc_f*csho + dltt + dlc) / at)
 
-# comp.funda (North America): uses ni, prcc_f, csho
-VARS_US = "gvkey, datadate, fyear, conm, curcd, at, revt, emp, ni, prcc_f, csho, dltt, dlc, naicsh AS naics, sich AS sic"
+# comp.funda (North America)
+VARS_US = """gvkey, datadate, fyear, conm, curcd, fic, costat,
+             at, sale, revt, emp,
+             ni, ib, oiadp,
+             ceq, pstk, prcc_f, csho, dltt, dlc,
+             naicsh AS naics, sich AS sic"""
 
-# comp.g_funda (Global): net income is nicon; prcc_f/csho are absent
-# → NULL placeholders keep column shape consistent for the ratio calculations below
-VARS_GLOBAL = "gvkey, datadate, fyear, conm, curcd, at, revt, emp, nicon AS ni, NULL::numeric AS prcc_f, NULL::numeric AS csho, dltt, dlc, naicsh AS naics, sich AS sic"
+# comp.g_funda (Global):
+#   - net income = nicon (aliased as ni)
+#   - shares outstanding = cshoi (aliased as csho)
+#   - prcc_f does not exist → NULL placeholder
+VARS_GLOBAL = """gvkey, datadate, fyear, conm, curcd, fic, costat,
+                 at, sale, revt, emp,
+                 nicon AS ni, ib, oiadp,
+                 ceq, pstk, NULL::numeric AS prcc_f, cshoi AS csho, dltt, dlc,
+                 naicsh AS naics, sich AS sic"""
 
 ######################################
 # Query Compustat North America      #
