@@ -17,46 +17,5 @@ for (NAICS2_CODE in NAICS2_CODES) {
   t_end <- Sys.time()
   timeSpent <- c(timeSpent, t_end - t0)
   cat(">>> Time used: ", NAICS2_CODE, ": ",format(t_end - t0), "\n")
-  # NAICS2 21; Time used:  21.80071 hours
-  # NAICS2 31; Time used:  6.595993 hours
-  # NAICS2 33; Time used:  6.782853 hours
 }
-#>>> Time used:  21 :  9.268672 hours 
-#>>> Time used:  31 :  2.540388 hours 
-#>>> Time used:  33 :  1.053115 hour
-
-# 7 May 2024 time note:
-# 72 :  1.649501 mins
-# 62 :  5.362494 mins
-# 60 :  1.818162 mins
-# 54 :  5.521456 mins
-# 53 :  1.421968 mins
-# 52 :  1.847637 hours
-# 51 :  20.01726 mins
-# 49 :  4.456856 mins
-# 48 :  7.56963 mins
-# 45 :  10.33758 mins
-# 44 :  15.69932 mins
-# 42 :  18.2359 mins 
-# 33 :  1.097597 hours
-# 32 :  39.86953 mins
-# 31 :  2.603275 hours
-# 23 :  9.293315 mins
-# 22 :  12.19108 mins
-# 21 :  9.315039 hours
-# 11 :  1.165202 mins
-
-# 30 July 2024 time note:
-#Time used 21 :  10.01932 hours 
-# 31 July 2024 time note:
-# Time used:  21 :  9.860266 hours 
-
-
-
-
-
-
-
-
-
 

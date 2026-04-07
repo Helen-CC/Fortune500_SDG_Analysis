@@ -88,7 +88,8 @@ df_sentence <- df.doc %>%
   mutate(value = stringr::str_replace(value, "\x0b", "")) %>% 
   # mutate(value = iconv(value, "", "utf8", sub = "")) %>%
   unnest_tokens(output = text, input = value, token = "sentences") %>% 
-  drop_na() %>% 
+  # drop observations if both `name` and `gvkey` are missing, or if `text` is missing
+  filter(!(is.na(name) & is.na(gvkey)), !is.na(text)) %>%
   arrange(gvkey, year)
 
 # Parallel computing

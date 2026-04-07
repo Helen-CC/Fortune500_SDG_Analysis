@@ -29,7 +29,7 @@ getGvkeyMap <- function(
   
   return(df.RankCode)
 }
-getGvkeyMap() %>% filter(naics2 == 11)
+# getGvkeyMap() %>% filter(naics2 == 11)
 
 
 parseFilenameFromPath <- function(txt_path) {
@@ -136,7 +136,7 @@ readReports <- function(NAICS2_CODE) {
   return(df_doc)
 }
 # df_test <- readReports(NAICS2_CODE = 11)
-readReports(NAICS2_CODE = 21)
+# readReports(NAICS2_CODE = 21)
 
 testParseFilenameFromPath <- function() {
   # Folder naming convention: {6-digit-gvkey}_{name} or _{name}
