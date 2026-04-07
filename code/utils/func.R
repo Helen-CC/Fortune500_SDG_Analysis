@@ -3,9 +3,12 @@ library(dplyr)
 library(stringr)
 library(assertthat)
 library(tidyverse)
+library(glue)
 source("./code/config.R", encoding = '')
 
-getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx"){
+getGvkeyMap <- function(
+  EXCEL_PATH = glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx")
+  ){
   "
   Description:
     the function load the excel file that records the 500 companies and the SIC code, NAICS code
@@ -13,15 +16,20 @@ getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2
   "
   ## Load company Rank and NAICS code mapping
   df.RankCode <- readxl::read_excel(EXCEL_PATH, 
-                                    sheet = "Fortune Global 500 2021") %>% 
-    select(rank = Rank, # 當 column name 不以數字開頭、沒特殊符號、沒有空格時，可不加back tick
+                                    sheet = "master") %>% 
+    select(gvkey = gvkey, # 當 column name 不以數字開頭、沒特殊符號、沒有空格時，可不加back tick
            name = Name, 
-           sic = `SIC Code`, # 當 col name 不合以上條件就要用 `` back tick 包住，是 dplyr 套件的用法
-           naics = `NAICS Code & Description (Eikon)`) %>% 
-    mutate(naics2 = floor(naics/100))  # floor 功能是取整數，小數點後直接去掉
+           sic = `SIC`, # 當 col name 不合以上條件就要用 `` back tick 包住，是 dplyr 套件的用法
+           naics = `NAICS`) %>% 
+    mutate(naics2 = floor(naics/100)) %>%  # floor 功能是取整數，小數點後直接去掉
+    # drop if gvkey is missing
+    drop_na(gvkey) %>%
+    # drop duplicates
+    distinct(gvkey, .keep_all = TRUE)
   
   return(df.RankCode)
 }
+# getGvkeyMap()
 
 
 readReports <- function(NAICS2_CODE) {
@@ -48,12 +56,12 @@ readReports <- function(NAICS2_CODE) {
   # "\\d+" matches one or more consecutive digit characters in a string.
   df.txt$rank[1]
   
-  df.RankCode <- getRankCodeMap()
+  df.Gvkey <- getGvkeyMap()
   
   # TO SELECT NAICS STARTING WITH THE CODE YOU INPUT
-  TARGET_ROWS <- df.RankCode %>% 
+  TARGET_ROWS <- df.Gvkey %>% 
     filter(naics2 == NAICS2_CODE) %>% 
-    pull(rank) %>% 
+    pull(gvkey) %>% 
     unique() %>% 
     sort()
   txt.toRead <- df.txt %>%  #把要分析NAICS 的檔案路徑列出
@@ -81,6 +89,7 @@ readReports <- function(NAICS2_CODE) {
   
   return(df_doc)
 }
+# readReports(NAICS2_CODE = 31)
 
 parseFilenameFromPath <- function(txt_path) {
   path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
