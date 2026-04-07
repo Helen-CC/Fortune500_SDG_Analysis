@@ -23,13 +23,27 @@ getGvkeyMap <- function(
            naics = `NAICS`) %>% 
     mutate(naics2 = floor(naics/100)) %>%  # floor 功能是取整數，小數點後直接去掉
     # drop if gvkey is missing
-    drop_na(gvkey) %>%
+    # drop_na(gvkey) %>%
     # drop duplicates
-    distinct(gvkey, .keep_all = TRUE)
+    distinct(.keep_all = TRUE)
   
   return(df.RankCode)
 }
-# getGvkeyMap()
+getGvkeyMap() %>% filter(naics2 == 11)
+
+
+parseFilenameFromPath <- function(txt_path) {
+  path_prefix <- as.character(
+    glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
+  )
+  # Extract the top-level folder name (first path component after prefix).
+  # Works for both gvkey-prefixed folders (e.g. 001690_Apple)
+  # and no-gvkey folders (e.g. _CHS).
+  filename <- txt_path %>%
+    str_replace(fixed(path_prefix), "") %>%
+    str_extract("^[^/]+")
+  return(filename)
+}
 
 
 readReports <- function(NAICS2_CODE) {
@@ -37,88 +51,108 @@ readReports <- function(NAICS2_CODE) {
   Description:
     input: the first 2 digits of NAICS code
     output: a dataframe that selected the given codes and lists the corresponding companies and annual report contents
+
+  Directory naming convention:
+    - {6-digit-gvkey}_{company name}  e.g. 001690_Apple
+    - _{company name}                 e.g. _CHS  (no gvkey available)
+
+  Matching logic:
+    1. If a folder has a 6-digit gvkey prefix, match to getGvkeyMap() via gvkey.
+    2. If no gvkey (folder starts with _), match via the company name field.
   "
-  
-  # read in files
+
   path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
-  txt_files <- fs::dir_ls(path_prefix, 
-                          # recurse means 遞歸, 會進入一層層子資料夾內取得所有檔案的路徑
-                          recurse = TRUE, regexp = "\\.txt|\\.htm")
-  txt_files[1]
-  # make the above vector of paths as a dataframe
-  df.txt <- bind_cols(
-      path = txt_files
-    ) %>% 
-    mutate(rank = str_replace(path, fixed(path_prefix), "")) %>%
-    mutate(rank = str_extract(rank, pattern = "\\d+"))
-  # \\d represents a digit character.
-  # + is a quantifier that specifies to match one or more occurrences of the preceding pattern.
-  # "\\d+" matches one or more consecutive digit characters in a string.
-  df.txt$rank[1]
-  
+  txt_files <- fs::dir_ls(path_prefix, recurse = TRUE, regexp = "\\.txt|\\.htm")
+
   df.Gvkey <- getGvkeyMap()
-  
-  # TO SELECT NAICS STARTING WITH THE CODE YOU INPUT
-  TARGET_ROWS <- df.Gvkey %>% 
-    filter(naics2 == NAICS2_CODE) %>% 
-    pull(gvkey) %>% 
-    unique() %>% 
-    sort()
-  txt.toRead <- df.txt %>%  #把要分析NAICS 的檔案路徑列出
-    filter(rank %in% TARGET_ROWS) %>% 
-    pull(path)
-  
-  ## Create a new df to store the path of the file to read and the contents
+
+  # Parse folder name: extract gvkey and company name from directory structure
+  # Folder conventions:
+  #   {6-digit-gvkey}_{name}  e.g. 001690_Apple
+  #   _{name}                 e.g. _CHS  (no gvkey)
+  df.txt <- tibble(path = as.character(txt_files)) %>%
+    mutate(
+      folder = .data$path %>%
+        str_replace(fixed(path_prefix), "") %>%
+        str_extract("^[^/]+"),
+      # 6-digit gvkey prefix before underscore; NA if absent
+      gvkey = str_extract(.data$folder, "^\\d{6}(?=_)"),
+      # company name: strip leading gvkey_ or bare _
+      name_in_path = str_replace(.data$folder, "^(\\d{6}_|_)", "")
+    )
+
+  # Determine naics2 per file:
+  #   rows with gvkey  -> join on gvkey
+  #   rows without     -> join on company name
+  # Deduplicate before joining to avoid many-to-many relationships
+  # (a company can appear with multiple NAICS codes in the master sheet)
+  gvkey_naics <- df.Gvkey %>%
+    filter(!is.na(.data$gvkey)) %>%
+    select("gvkey", naics2_by_gvkey = "naics2") %>%
+    distinct(.data$gvkey, .keep_all = TRUE)
+
+  name_naics <- df.Gvkey %>%
+    filter(is.na(.data$gvkey)) %>%
+    select("name", naics2_by_name = "naics2") %>%
+    distinct(.data$name, .keep_all = TRUE)
+
+  df.txt <- df.txt %>%
+    left_join(gvkey_naics, by = "gvkey") %>%
+    left_join(name_naics, by = c("name_in_path" = "name")) %>%
+    mutate(
+      naics2 = if_else(
+        !is.na(.data$gvkey),
+        .data$naics2_by_gvkey,
+        .data$naics2_by_name
+      )
+    )
+
+  txt.toRead <- df.txt %>%
+    filter(.data$naics2 == NAICS2_CODE) %>%
+    pull(.data$path)
+
+  ## Read files and combine
   df_doc <- tibble()
   for (txt in txt.toRead) {
     filename <- parseFilenameFromPath(txt)
-    
-    year <- str_extract(txt, "20\\d{2}")
-    df.tmp <- read_lines(txt) %>% 
-      as_tibble() %>% 
-      summarise(value = str_c(value, collapse = "\\s")) %>% 
-      mutate(name = filename,
-             gvkey = str_extract(name, "\\d+"),
-             # gvkey key is character, so if 0 in the front is missing, need to pad it with 0 to make it 6-digit
-             gvkey = str_pad(gvkey, width = 6, side = "left", pad = "0"),
-             year = as.numeric(year),
-             name = paste0(name, "_", year)) %>% 
-      drop_na() %>% 
-      arrange(gvkey, year)
+    year     <- str_extract(txt, "20\\d{2}")
+
+    df.tmp <- read_lines(txt) %>%
+      as_tibble() %>%
+      summarise(value = str_c(.data$value, collapse = "\\s")) %>%
+      mutate(
+        name  = filename,
+        # 6-digit prefix if present; NA for no-gvkey companies
+        gvkey = str_extract(.data$name, "^\\d{6}"),
+        year  = as.numeric(year),
+        name  = paste0(.data$name, "_", year)
+      ) %>%
+      # keep rows where gvkey is NA; only drop missing text or year
+      filter(!is.na(.data$value), !is.na(.data$year)) %>%
+      arrange(.data$gvkey, .data$year)
     df_doc <- df_doc %>% bind_rows(df.tmp)
   }
-  
+
   return(df_doc)
 }
 # df_test <- readReports(NAICS2_CODE = 11)
-
-parseFilenameFromPath <- function(txt_path) {
-  path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
-  filename <- txt_path %>% 
-    str_replace(fixed(path_prefix), "") %>% 
-    str_extract("\\d+.+?/") %>% 
-    str_remove("/")
-  return(filename)
-}
+readReports(NAICS2_CODE = 21)
 
 testParseFilenameFromPath <- function() {
-  testStrings <- c("220 Shaanxi Coal & Chemical Industry/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "191 Alimentation Couche-Tard/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "237 América Móvil/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "146 Archer Daniels Midland (ADM)/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "148 Xiamen C&D/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "328 Suning.com Group/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "314 J. Sainsbury/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "322 Itaú Unibanco Holding/Shaanxi Coal & Chemical Industry no AR.txt"
+  # Folder naming convention: {6-digit-gvkey}_{name} or _{name}
+  testStrings <- c(
+    "001690_Apple/Apple AR txt/Apple 2021.txt",
+    "019661_Toyota Motor/Toyota AR txt/Toyota 2021.txt",
+    "100737_Volkswagen/Volkswagen 2021.txt",
+    "_CHS/CHS AR txt/CHS 2021.txt",
+    "_Huawei Investment & Holding/Huawei 2021.txt"
   )
-  expectedStrings <- c("220 Shaanxi Coal & Chemical Industry",
-                       "191 Alimentation Couche-Tard",
-                       "237 América Móvil",
-                       "146 Archer Daniels Midland (ADM)",
-                       "148 Xiamen C&D",
-                       "328 Suning.com Group",
-                       "314 J. Sainsbury",
-                       "322 Itaú Unibanco Holding"
+  expectedStrings <- c(
+    "001690_Apple",
+    "019661_Toyota Motor",
+    "100737_Volkswagen",
+    "_CHS",
+    "_Huawei Investment & Holding"
   )
   for (i in seq_along(testStrings)) {
     cat(">>> Test case ", i, "\n")
