@@ -78,18 +78,19 @@ readReports <- function(NAICS2_CODE) {
       as_tibble() %>% 
       summarise(value = str_c(value, collapse = "\\s")) %>% 
       mutate(name = filename,
-             rank = str_extract(name, "\\d+"),
-             rank = as.numeric(rank),
+             gvkey = str_extract(name, "\\d+"),
+             # gvkey key is character, so if 0 in the front is missing, need to pad it with 0 to make it 6-digit
+             gvkey = str_pad(gvkey, width = 6, side = "left", pad = "0"),
              year = as.numeric(year),
              name = paste0(name, "_", year)) %>% 
       drop_na() %>% 
-      arrange(rank, year)
+      arrange(gvkey, year)
     df_doc <- df_doc %>% bind_rows(df.tmp)
   }
   
   return(df_doc)
 }
-# readReports(NAICS2_CODE = 31)
+# df_test <- readReports(NAICS2_CODE = 11)
 
 parseFilenameFromPath <- function(txt_path) {
   path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")

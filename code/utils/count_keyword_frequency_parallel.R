@@ -71,8 +71,12 @@ df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"
 df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
 
 ## A BETTER WAY TO SELECT NAICS STARTING WITH XX
-## Change the following code if needed
+# the columns are: "value" "name"  "gvkey"  "year"
+# if returned an empty dataframe, create a tibble with the same columns but no rows to avoid error in the following code
 df.doc <- readReports(NAICS2_CODE)
+if (nrow(df.doc) == 0) {
+  df.doc <- tibble(value = character(), name = character(), gvkey = character(), year = numeric())
+}
 
 
 # compute word count
@@ -85,7 +89,7 @@ df_sentence <- df.doc %>%
   # mutate(value = iconv(value, "", "utf8", sub = "")) %>%
   unnest_tokens(output = text, input = value, token = "sentences") %>% 
   drop_na() %>% 
-  arrange(rank)
+  arrange(gvkey, year)
 
 # Parallel computing
 ## split dataframe by firm-year value
