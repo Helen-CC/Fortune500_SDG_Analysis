@@ -16,7 +16,7 @@ load_dotenv()
 DROPBOX_PATH = os.getenv("DATA_FOLDER")
 COMPANY_REF_PATH = f"{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"
 OUT_DIR = f"{DROPBOX_PATH}/raw_data/compustat"
-TODAY = pd.Timestamp.today().strftime("%Y-%m-%d")
+# TODAY = pd.Timestamp.today().strftime("%Y-%m-%d")
 
 ###################
 # Connect to WRDS #
@@ -118,7 +118,8 @@ for label, df in [("us", funda_us), ("global", funda_global)]:
     df["ros"] = df["ni"] / df["revt"]
     df["tobin_q"] = (df["prcc_f"] * df["csho"] + df["dltt"].fillna(0) + df["dlc"].fillna(0)) / df["at"]
 
-    out_path = f"{OUT_DIR}/{TODAY}_comp_funda_{label}.csv"
+    # out_path = f"{OUT_DIR}/{TODAY}_comp_funda_{label}.csv"
+    out_path = f"{OUT_DIR}/comp_funda_{label}.csv"
     df.to_csv(out_path, index=False)
     print(f"\nSaved {label} data -> {out_path}")
     print(df.head(3))

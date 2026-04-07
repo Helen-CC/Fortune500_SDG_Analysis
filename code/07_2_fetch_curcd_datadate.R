@@ -11,7 +11,7 @@ library(glue) # for string concatenation
 library(dotenv) # for environmental variable loading
 source("./code/config.R", encoding = '')
 
-firm_characteristics_glob <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/2026-04-07_comp_funda_global.csv"))
+firm_characteristics_glob <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/comp_funda_global.csv"))
 
 unique_curcd <- firm_characteristics_glob %>%
   select(curcd) %>% 
