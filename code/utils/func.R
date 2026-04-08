@@ -117,13 +117,18 @@ readReports <- function(NAICS2_CODE) {
     filename <- parseFilenameFromPath(txt)
     year     <- str_extract(txt, "20\\d{2}")
 
+    # Strip folder prefix to get a clean company name for display:
+    #   "006502_Saudi Aramco" -> "Saudi Aramco"
+    #   "_CHS"               -> "CHS"
+    company_name <- str_replace(filename, "^(\\d{6}_|_)", "")
+
     df.tmp <- read_lines(txt) %>%
       as_tibble() %>%
       summarise(value = str_c(.data$value, collapse = "\\s")) %>%
       mutate(
-        name  = filename,
-        # 6-digit prefix if present; NA for no-gvkey companies
-        gvkey = str_extract(.data$name, "^\\d{6}"),
+        name  = company_name,
+        # gvkey: 6-digit prefix from folder name; NA for no-gvkey companies
+        gvkey = str_extract(filename, "^\\d{6}"),
         year  = as.numeric(year),
         name  = paste0(.data$name, "_", year)
       ) %>%

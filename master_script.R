@@ -11,6 +11,8 @@ source("./code/01_1_keyword.R")
 # This is a more efficient and high-end version
 source("./code/02_2_run_wordCount.R")
 
+source("./code/02_4_run_CIP_colocation_count.R")
+
 #' @note a simpler version without parallel computing is in the misc folder
 #' The following script in misc folder is no longer in use, but it's a simpler version for reference.
 # NAICS2_CODE <- 31
