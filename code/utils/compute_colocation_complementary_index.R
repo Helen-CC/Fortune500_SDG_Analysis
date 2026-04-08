@@ -140,11 +140,11 @@ countColocationWords <- function(splited_data,
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
 # IO of annual reports
-df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
+df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
 
 # Import keyword lists for Complementary/Indenpendent/Pressure Index construction
+index_keyword_list <- getComplementaryIndexKeywords("./data/raw_data/keyword/Complementarity_independence_pressure_keywords.xlsx")
 
-index_keyword_list <- getComplementaryIndexKeywords("./data/raw_data/Complementarity_independence_pressure_keywords.xlsx")
 colocation_complementary_keywords <- index_keyword_list[["complementary"]]
 colocation_independent_keywords <- index_keyword_list[["independent"]]
 colocation_pressure_keywords <- index_keyword_list[["pressure"]]
@@ -163,8 +163,8 @@ df_sentence <- df.doc %>%
   mutate(value = stringr::str_replace(value, "\x0b", "")) %>%
   # mutate(value = iconv(value, "", "utf8", sub = "")) %>%
   unnest_tokens(output = text, input = value, token = "sentences") %>%
-  drop_na() %>%
-  arrange(rank)
+  filter(!is.na(gvkey) | !is.na(name)) %>%
+  arrange(gvkey)
 
 # Parallel computing
 ## split dataframe by firm-year value

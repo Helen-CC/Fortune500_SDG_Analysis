@@ -12,7 +12,7 @@ timeSpent <- c()
 for (NAICS2_CODE in NAICS2_CODES) {
   # timing
   t0 <- Sys.time()
-  source("./code/02_3_compute_colocation_complementary_index.R")
+  source("./code/utils/compute_colocation_complementary_index.R")
   t_end <- Sys.time()
   timeSpent <- c(timeSpent, t_end - t0)
   cat(">>> Time used: ", NAICS2_CODE, ": ",format(t_end - t0), "\n")

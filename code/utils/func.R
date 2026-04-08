@@ -167,7 +167,7 @@ testParseFilenameFromPath <- function() {
   cat(">>> All tests pass\n")
 }
 
-testParseFilenameFromPath()
+# testParseFilenameFromPath()
 
 
 getComplementaryIndexKeywords <- function(EXCEL_PATH = "./data/raw_data/Complementarity_independence_pressure_keywords.xlsx"){
