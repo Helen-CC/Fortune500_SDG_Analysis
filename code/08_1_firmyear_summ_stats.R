@@ -18,7 +18,7 @@ df_merged <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.R
   mutate(naics2 = str_sub(naics, 0, 2)) 
 
 # Only focusing on mining firms
-gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
+gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/comp_funda_global.csv"))
 gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
 
 gvkey_to_exclud <- c(272126, # Shaanxi
@@ -65,7 +65,7 @@ df_firmyear <- df_merged %>%
   distinct() 
 
 df_firmyear <- df_firmyear %>%
-  drop_na(c(rank, year)) %>%
+  drop_na(c(gvkey, year)) %>%
   # fill NA as 0s in SDG counts
   mutate(sdg0_count = ifelse(is.na(sdg0_count), 0, sdg0_count),
          sdg1_count = ifelse(is.na(sdg1_count), 0, sdg1_count),
