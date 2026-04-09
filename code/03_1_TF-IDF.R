@@ -16,7 +16,7 @@ df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference
 
 ## A BETTER WAY TO SELECT NAICS STARTING WITH XX
 ## TODO: Change the following code if needed
-NAICS2_CODE <- 22
+NAICS2_CODE <- 21
 df.doc <- readReports(NAICS2_CODE)
 
 
@@ -56,19 +56,40 @@ df.plot <- df.words %>%
   # so each facet sorts independently
   mutate(word = tidytext::reorder_within(word, tf_idf, name))
 
-p1 <- df.plot %>%
-  ggplot(aes(tf_idf, word, fill = name)) +
-  geom_col(show.legend = FALSE) +
-  labs(x = "TF-IDF", y = NULL) +
-  facet_wrap(~name, ncol = 2, scales = "free") +
-  tidytext::scale_y_reordered()
-p1
+## Paginated save: split into pages when there are too many companies
+companies          <- levels(droplevels(df.plot$name))
+n_companies        <- length(companies)
+companies_per_page <- 20   # 10 rows × 2 cols
+height_per_row     <- 3    # inches per panel row
 
-## Save plot
-p1 %>% 
-  ggsave(filename = "./data/result/fig_Tf-IDF_NAICS_21.png", 
-         device = "png",
-         dpi = 300, 
-         units = "in",
-         height = 12, width = 12)
+pages <- split(companies,
+               ceiling(seq_along(companies) / companies_per_page))
+
+for (page_i in seq_along(pages)) {
+  page_companies <- pages[[page_i]]
+  n_this_page    <- length(page_companies)
+  plot_height    <- ceiling(n_this_page / 2) * height_per_row
+
+  p <- df.plot %>%
+    filter(name %in% page_companies) %>%
+    droplevels() %>%
+    ggplot(aes(tf_idf, word, fill = name)) +
+    geom_col(show.legend = FALSE) +
+    labs(x = "TF-IDF", y = NULL) +
+    facet_wrap(~name, ncol = 2, scales = "free") +
+    tidytext::scale_y_reordered()
+
+  suffix <- if (length(pages) > 1) glue("_p{page_i}") else ""
+  ggsave(
+    plot     = p,
+    filename = glue(
+      "./data/result/fig_Tf-IDF_NAICS_{NAICS2_CODE}{suffix}.png"
+    ),
+    device = "png",
+    dpi    = 300,
+    units  = "in",
+    width  = 12,
+    height = plot_height
+  )
+}
 
