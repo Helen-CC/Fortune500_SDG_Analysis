@@ -3,28 +3,20 @@
 rm(list = ls()); gc()
 
 library(ggplot2) # for plotting
-library(fixest) # for regression models
-library(dplyr) # for dataframe operations
-library(tidyr) # for data cleaning
-library(readr) # for RDS data loading
-library(glue) # for string concatenation
-library(dotenv) # for environmental variable loading
+library(fixest)  # for regression models
+library(dplyr)   # for dataframe operations
+library(tidyr)   # for data cleaning
+library(readr)   # for RDS data loading
+library(glue)    # for string concatenation
+library(dotenv)  # for environmental variable loading
 source("./code/config.R", encoding = '')
 
-# import company reference (gvkey-year-rank mapping)
-gvkey_rank_mapping <- read_csv("./data/company_reference/company_reference/gvkeys-rank_mapping.csv")
-# pick up a set of keywords to use
-# df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
 # obtain keyword counts from all SDG categories and from all industries
-sdg_data <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_regression_by_SDG_NAICS_firmyear.RDS"))
+# (gvkey is already attached in 07_1_setup_keyword_count_data.R)
+sdg_data <- read_rds(
+  glue("{DROPBOX_PATH}/cleaned_data/df_regression_by_SDG_NAICS_firmyear.RDS")
+)
 
-sdg_data <- sdg_data %>%
-  left_join(gvkey_rank_mapping %>%
-              select(-fyear) %>%
-              rename(compname = Name), 
-            by = c("rank" = "Rank"))
-
-str(sdg_data)
 sdg_data$gvkey %>% as.numeric() %>% summary()
 
 
@@ -51,16 +43,23 @@ sdg_data %>%
   filter(n > 1)
 
 #' @section import Compustat data and convert currencies
-firm_characteristics_us <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_us.csv"))
-firm_characteristics_glob <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global.csv"))
-df_fx <- read_csv(glue("{DROPBOX_PATH}/cleaned_data/exchange_rates_to_usd.csv"))
+firm_characteristics_us   <- read_csv(
+  glue("{DROPBOX_PATH}/raw_data/compustat/comp_funda_us.csv")
+)
+firm_characteristics_glob <- read_csv(
+  glue("{DROPBOX_PATH}/raw_data/compustat/comp_funda_global.csv")
+)
+df_fx <- read_csv(
+  glue("{DROPBOX_PATH}/cleaned_data/exchange_rates_to_usd.csv")
+)
 
 
 # convert currencies using FX data
 firm_characteristics_glob %>% colnames()
 firm_characteristics_glob <- firm_characteristics_glob %>%
-  select(gvkey, fyear, conm, curcd, at, emp, revt, naics, sic, datadate) %>%
-  left_join(df_fx, 
+  select(gvkey, fyear, conm, curcd, at, emp, revt,
+         roa, ros, tobin_q, naics, sic, datadate) %>%
+  left_join(df_fx,
             join_by(closest(datadate <= datadate)))
 
 firm_characteristics_glob_converted <- firm_characteristics_glob %>%
@@ -92,12 +91,14 @@ firm_characteristics_glob_converted <- firm_characteristics_glob %>%
 
 firm_characteristics_glob_converted %>% colnames()
 firm_characteristics_glob_converted <- firm_characteristics_glob_converted %>%
-  select(gvkey, fyear, conm, at, revt, emp, naics, sic)
+  select(gvkey, fyear, conm, at, revt, emp,
+         roa, ros, tobin_q, naics, sic)
 
 
 # Merge US, global firm characteristics with keyword counts
-df_merged <- firm_characteristics_us %>% 
-  select(gvkey, fyear, conm, at, revt, emp, naics, sic) %>%
+df_merged <- firm_characteristics_us %>%
+  select(gvkey, fyear, conm, at, revt, emp,
+         roa, ros, tobin_q, naics, sic) %>%
   full_join(firm_characteristics_glob_converted) %>%
   distinct() %>%
   # label the dupes
@@ -116,11 +117,10 @@ df_merged %>%
 
 
 df_merged <- df_merged %>%
-  mutate(gvkey = as.numeric(gvkey)) %>%
   left_join(sdg_data %>%
-              select(gvkey, rank, year, sdg, sdg_number, 
-                     country = Country, n_keyword, naics_self = naics),
-            join_by(gvkey == gvkey, closest(fyear <= year))) 
+              select(gvkey, year, sdg, sdg_number,
+                     n_keyword, naics_self = naics),
+            join_by(gvkey == gvkey, closest(fyear <= year)))
 
 df_merged %>%
   group_by(gvkey, fyear, sdg) %>%
@@ -133,12 +133,10 @@ df_merged %>%
 df_merged <- df_merged %>%
   # create sic2 industry classification
   mutate(sic2 = stringr::str_sub(sic, 1, 2)) %>%
-  # drop uncessary variables
-  # select(-fyear)
   # make sure fyear and year aligns
   filter(fyear == year)
-  
+
 #' save merged data
 #' at `(firm, year, sdg, keyword_count)` level
-write_rds(df_merged, glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.RDS"))
-
+write_rds(df_merged,
+          glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.RDS"))

@@ -12,139 +12,109 @@ library(ggplot2)
 library(readr)
 library(stringr)
 library(forcats)
+source("./code/utils/func.R")
 source("./code/config.R", encoding = '')
 
 # Load data
-df <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS21.rds"))
+## TODO: Change NAICS2_CODE if needed
+NAICS2_CODE <- 21
+
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
+df.Gvkey     <- getGvkeyMap(
+  glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx")
+)
 
-str(df); class(df)
-# Merge SDG categories
-df <- df %>% 
-  left_join(df_final_key, by = c('keyword' = 'word')) %>% 
-  # add year and rank
-  mutate(year = str_extract(name, "_\\d+"),
-         year = str_remove(year, "_"),
-         year = as.numeric(year),
-         name = str_remove(name, "_\\d+")) %>% 
-  mutate(rank = str_extract(name, "\\d+"),
-         rank = as.numeric(rank),
-         name = str_remove(name, "\\d+"),
-         name = str_trim(name))
+df <- read_rds(
+  glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS{NAICS2_CODE}.rds")
+)
 
-# Join Methods in dplyr (the package that deals with dataframes)
-# 
-# dplyr::inner_join()
-# left_join
-# right_join
-# outer_join
-# anti_join
+# Merge SDG categories and attach gvkey
+df <- df %>%
+  left_join(df_final_key, by = c("keyword" = "word")) %>%
+  # parse year and strip from name
+  # e.g. "5 Sinopec Group_2020" -> year=2020, name="5 Sinopec Group"
+  mutate(
+    year = as.numeric(str_extract(name, "\\d{4}$")),
+    name = str_remove(name, "_\\d{4}$")
+  ) %>%
+  # attach gvkey via company name
+  left_join(df.Gvkey, by = "name")
 
 # Prepare for plot
-df.plot <- df %>% 
+df.plot <- df %>%
   # find the numerator
-  group_by(name, rank, year, sdg) %>% 
-  summarise(n_keyword = sum(n_keyword)) %>% 
-  ungroup() %>% 
+  group_by(gvkey, name, year, sdg) %>%
+  summarise(n_keyword = sum(n_keyword), .groups = "drop") %>%
   # find the denominator
-  group_by(name, rank, year) %>% 
-  mutate(n_keyword_total = sum(n_keyword)) %>% 
-  ungroup() %>% 
+  group_by(gvkey, name, year) %>%
+  mutate(n_keyword_total = sum(n_keyword)) %>%
+  ungroup() %>%
   # find the ratio
-  mutate(ratio = n_keyword / n_keyword_total * 100) %>% 
-  mutate(ratio = round(ratio, 2)) %>% 
-  # find sdg number
-  mutate(sdg_number = str_extract(sdg, "\\d+"),
-         sdg_number = as.numeric(sdg_number)) %>% 
-  # set sdg as factor data
-  mutate(sdg = as_factor(sdg)) %>% 
-  mutate(sdg = fct_reorder(sdg, sdg_number)) %>% 
+  mutate(ratio = n_keyword / n_keyword_total * 100) %>%
+  mutate(ratio = round(ratio, 2)) %>%
+  # set sdg as ordered factor
+  mutate(sdg_number = as.numeric(str_extract(sdg, "\\d+"))) %>%
+  mutate(sdg = as_factor(sdg)) %>%
+  mutate(sdg = fct_reorder(sdg, sdg_number)) %>%
   filter(!is.na(sdg))
 
 ## Pick a company
-## TODO: input a company's rank
-AVAILABLE_COMPANIES <- df %>% select(name, rank) %>% distinct()
-company_rank <- 5
-company_name <- AVAILABLE_COMPANIES %>% filter(rank == company_rank) %>% pull(name)
+## TODO: set COMPANY_GVKEY to the gvkey of the company you want to plot
+AVAILABLE_COMPANIES <- df %>% select(gvkey, name) %>% distinct()
+COMPANY_GVKEY <- AVAILABLE_COMPANIES$gvkey[1]  # default: first company
+company_name  <- AVAILABLE_COMPANIES %>%
+  filter(gvkey == COMPANY_GVKEY) %>%
+  pull(name) %>%
+  head(1)
 
-label_data <- df.plot |> 
-  filter(rank == company_rank) |> 
-  group_by(sdg) |> 
-  filter(year == max(year)) |> 
-  ungroup()
+# SET THE END YEAR FOR PLOT
+MAX_YEAR <- df.plot %>%
+  filter(gvkey == COMPANY_GVKEY) %>%
+  pull(year) %>%
+  max()
 
-# # df.plot可以看每個sdg 次數及ratio
-# p1 <- df.plot %>% 
-#   filter(rank == company_rank) %>% 
-#   ggplot(aes(x = year, y = ratio, color = sdg)) +
-#   geom_line()+
-#   ggtitle(company_name)+
-#   labs(x = "year", y = "percentage")+
-#   #這兩行調x y 軸字大小
-#   theme(axis.text.y = element_text(size = 13),
-#         axis.text.x = element_text(size = 13))
-# 
-# p1
-
-# SET THE END YEAR FOR PLOT #我不用手動改最後一年這裡
-MAX_YEAR <- df.plot %>% filter(rank == company_rank) %>% pull(year) %>% max()
-# Find top 5 SDG categories for the last year (2020)
-top_5_sdg <- df.plot %>%
-  filter(rank == company_rank, year == MAX_YEAR) %>%
-  # choose the top n SDG categories to show a text box
+# Find top 3 SDG categories for the last year
+top_sdg <- df.plot %>%
+  filter(gvkey == COMPANY_GVKEY, year == MAX_YEAR) %>%
   top_n(3, ratio) %>%
   pull(sdg)
 
 # scale the range of y-axis
-y_max <- max(df.plot %>% filter(rank == company_rank) %>% pull(ratio))+10
+y_max <- df.plot %>%
+  filter(gvkey == COMPANY_GVKEY) %>%
+  pull(ratio) %>%
+  max() + 10
+
 # Plot the data
-p1 <- df.plot %>% 
-  filter(rank == company_rank) %>% 
+p1 <- df.plot %>%
+  filter(gvkey == COMPANY_GVKEY) %>%
   ggplot(aes(x = year, y = ratio, color = sdg)) +
   geom_line() +
   ggtitle(company_name) +
   labs(x = "Year", y = "Percentage") +
   theme(axis.text.y = element_text(size = 13),
         axis.text.x = element_text(size = 13)) +
-  # add text box to the end of 2020 data that indicates the top n SDG category
-  geom_text(data = df.plot %>% 
-              filter(rank == company_rank, sdg %in% top_5_sdg, year == MAX_YEAR),
-            aes(label = sdg, y = ratio + 0.5),
-            size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE) +
-  #by = 1, every years will show on png; by = 2, every 2 years
-  scale_x_continuous(breaks = seq(min(df.plot$year), max(df.plot$year), by = 1))+
+  geom_text(
+    data = df.plot %>%
+      filter(gvkey == COMPANY_GVKEY, sdg %in% top_sdg, year == MAX_YEAR),
+    aes(label = sdg, y = ratio + 0.5),
+    size = 3, hjust = 0.5, vjust = 0, check_overlap = TRUE
+  ) +
+  scale_x_continuous(
+    breaks = seq(min(df.plot$year), max(df.plot$year), by = 1)
+  ) +
   ylim(0, y_max)
 
 p1
 
-# p2 <- df.plot |> 
-#   # choose the company
-#   filter(rank == company_rank) %>% 
-#   ggplot(aes(x = year, y = ratio, color = sdg)) +
-#   geom_line()+
-#   geom_text(data = label_data, aes(label = sdg),
-#             nudge_x = 0.5, check_overlap = TRUE, hjust = 0, vjust = 0)+
-#   ggtitle(company_name)+
-#   labs(x = "year", y = "percentage")+
-#   #這兩行調x y 軸字大小
-#   theme(axis.text.y = element_text(size = 13),
-#         axis.text.x = element_text(size = 13))+
-#   scale_x_continuous(breaks = seq(min(df.plot$year), max(df.plot$year), by = 1))
-# p2
-
 ## Save plot
-#p1 %>% 
-  #ggsave(filename = paste0("./data/result/fig_timetrend_across_SDGcate_", company_name, ".png"), 
-        # device = "png",
-         #dpih = 300, 
-        # units = "in",
-        # height = 12, width = 12)
-
-## Save plot that is not managed by git
-p1 %>% 
-  ggsave(filename = paste0("./data/result/TimeTrend/fig_timetrend_across_SDGcate_", company_name, ".png"), 
-         device = "png",
-         dpi = 300, 
-         units = "in",
-         height = 6, width = 8)
-
+p1 %>%
+  ggsave(
+    filename = glue(
+      "./data/result/TimeTrend/fig_timetrend_across_SDGcate_{company_name}.png"
+    ),
+    device = "png",
+    dpi    = 300,
+    units  = "in",
+    height = 6, width = 8
+  )

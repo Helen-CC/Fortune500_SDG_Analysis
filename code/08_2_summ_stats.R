@@ -17,7 +17,7 @@ df_merged <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/regression_data_merged.R
   mutate(naics2 = str_sub(naics, 0, 2)) 
 
 # Only focusing on mining firms
-gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/company_value_global_mining.csv"))
+gvkeys_mining <- read_csv(glue("{DROPBOX_PATH}/raw_data/compustat/comp_funda_global.csv"))
 gvkeys_mining <- gvkeys_mining %>% pull(gvkey) %>% unique()
 
 gvkey_to_exclud <- c(272126, # Shaanxi

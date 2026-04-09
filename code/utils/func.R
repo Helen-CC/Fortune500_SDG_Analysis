@@ -3,9 +3,12 @@ library(dplyr)
 library(stringr)
 library(assertthat)
 library(tidyverse)
+library(glue)
 source("./code/config.R", encoding = '')
 
-getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx"){
+getGvkeyMap <- function(
+  EXCEL_PATH = glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx")
+  ){
   "
   Description:
     the function load the excel file that records the 500 companies and the SIC code, NAICS code
@@ -13,14 +16,33 @@ getRankCodeMap <- function(EXCEL_PATH = "./data/raw_data/TM Final_FortuneG500 (2
   "
   ## Load company Rank and NAICS code mapping
   df.RankCode <- readxl::read_excel(EXCEL_PATH, 
-                                    sheet = "Fortune Global 500 2021") %>% 
-    select(rank = Rank, # 當 column name 不以數字開頭、沒特殊符號、沒有空格時，可不加back tick
+                                    sheet = "master") %>% 
+    select(gvkey = gvkey, # 當 column name 不以數字開頭、沒特殊符號、沒有空格時，可不加back tick
            name = Name, 
-           sic = `SIC Code`, # 當 col name 不合以上條件就要用 `` back tick 包住，是 dplyr 套件的用法
-           naics = `NAICS Code & Description (Eikon)`) %>% 
-    mutate(naics2 = floor(naics/100))  # floor 功能是取整數，小數點後直接去掉
+           sic = `SIC`, # 當 col name 不合以上條件就要用 `` back tick 包住，是 dplyr 套件的用法
+           naics = `NAICS`) %>% 
+    mutate(naics2 = floor(naics/100)) %>%  # floor 功能是取整數，小數點後直接去掉
+    # drop if gvkey is missing
+    # drop_na(gvkey) %>%
+    # drop duplicates
+    distinct(.keep_all = TRUE)
   
   return(df.RankCode)
+}
+# getGvkeyMap() %>% filter(naics2 == 11)
+
+
+parseFilenameFromPath <- function(txt_path) {
+  path_prefix <- as.character(
+    glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
+  )
+  # Extract the top-level folder name (first path component after prefix).
+  # Works for both gvkey-prefixed folders (e.g. 001690_Apple)
+  # and no-gvkey folders (e.g. _CHS).
+  filename <- txt_path %>%
+    str_replace(fixed(path_prefix), "") %>%
+    str_extract("^[^/]+")
+  return(filename)
 }
 
 
@@ -29,86 +51,113 @@ readReports <- function(NAICS2_CODE) {
   Description:
     input: the first 2 digits of NAICS code
     output: a dataframe that selected the given codes and lists the corresponding companies and annual report contents
+
+  Directory naming convention:
+    - {6-digit-gvkey}_{company name}  e.g. 001690_Apple
+    - _{company name}                 e.g. _CHS  (no gvkey available)
+
+  Matching logic:
+    1. If a folder has a 6-digit gvkey prefix, match to getGvkeyMap() via gvkey.
+    2. If no gvkey (folder starts with _), match via the company name field.
   "
-  
-  # read in files
+
   path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
-  txt_files <- fs::dir_ls(path_prefix, 
-                          # recurse means 遞歸, 會進入一層層子資料夾內取得所有檔案的路徑
-                          recurse = TRUE, regexp = "\\.txt|\\.htm")
-  txt_files[1]
-  # make the above vector of paths as a dataframe
-  df.txt <- bind_cols(
-      path = txt_files
-    ) %>% 
-    mutate(rank = str_replace(path, fixed(path_prefix), "")) %>%
-    mutate(rank = str_extract(rank, pattern = "\\d+"))
-  # \\d represents a digit character.
-  # + is a quantifier that specifies to match one or more occurrences of the preceding pattern.
-  # "\\d+" matches one or more consecutive digit characters in a string.
-  df.txt$rank[1]
-  
-  df.RankCode <- getRankCodeMap()
-  
-  # TO SELECT NAICS STARTING WITH THE CODE YOU INPUT
-  TARGET_ROWS <- df.RankCode %>% 
-    filter(naics2 == NAICS2_CODE) %>% 
-    pull(rank) %>% 
-    unique() %>% 
-    sort()
-  txt.toRead <- df.txt %>%  #把要分析NAICS 的檔案路徑列出
-    filter(rank %in% TARGET_ROWS) %>% 
-    pull(path)
-  
-  ## Create a new df to store the path of the file to read and the contents
+  txt_files <- fs::dir_ls(path_prefix, recurse = TRUE, regexp = "\\.txt|\\.htm")
+
+  df.Gvkey <- getGvkeyMap()
+
+  # Parse folder name: extract gvkey and company name from directory structure
+  # Folder conventions:
+  #   {6-digit-gvkey}_{name}  e.g. 001690_Apple
+  #   _{name}                 e.g. _CHS  (no gvkey)
+  df.txt <- tibble(path = as.character(txt_files)) %>%
+    mutate(
+      folder = .data$path %>%
+        str_replace(fixed(path_prefix), "") %>%
+        str_extract("^[^/]+"),
+      # 6-digit gvkey prefix before underscore; NA if absent
+      gvkey = str_extract(.data$folder, "^\\d{6}(?=_)"),
+      # company name: strip leading gvkey_ or bare _
+      name_in_path = str_replace(.data$folder, "^(\\d{6}_|_)", "")
+    )
+
+  # Determine naics2 per file:
+  #   rows with gvkey  -> join on gvkey
+  #   rows without     -> join on company name
+  # Deduplicate before joining to avoid many-to-many relationships
+  # (a company can appear with multiple NAICS codes in the master sheet)
+  gvkey_naics <- df.Gvkey %>%
+    filter(!is.na(.data$gvkey)) %>%
+    select("gvkey", naics2_by_gvkey = "naics2") %>%
+    distinct(.data$gvkey, .keep_all = TRUE)
+
+  name_naics <- df.Gvkey %>%
+    filter(is.na(.data$gvkey)) %>%
+    select("name", naics2_by_name = "naics2") %>%
+    distinct(.data$name, .keep_all = TRUE)
+
+  df.txt <- df.txt %>%
+    left_join(gvkey_naics, by = "gvkey") %>%
+    left_join(name_naics, by = c("name_in_path" = "name")) %>%
+    mutate(
+      naics2 = if_else(
+        !is.na(.data$gvkey),
+        .data$naics2_by_gvkey,
+        .data$naics2_by_name
+      )
+    )
+
+  txt.toRead <- df.txt %>%
+    filter(.data$naics2 == NAICS2_CODE) %>%
+    pull(.data$path)
+
+  ## Read files and combine
   df_doc <- tibble()
   for (txt in txt.toRead) {
     filename <- parseFilenameFromPath(txt)
-    
-    year <- str_extract(txt, "20\\d{2}")
-    df.tmp <- read_lines(txt) %>% 
-      as_tibble() %>% 
-      summarise(value = str_c(value, collapse = "\\s")) %>% 
-      mutate(name = filename,
-             rank = str_extract(name, "\\d+"),
-             rank = as.numeric(rank),
-             year = as.numeric(year),
-             name = paste0(name, "_", year)) %>% 
-      drop_na() %>% 
-      arrange(rank, year)
+    year     <- str_extract(txt, "20\\d{2}")
+
+    # Strip folder prefix to get a clean company name for display:
+    #   "006502_Saudi Aramco" -> "Saudi Aramco"
+    #   "_CHS"               -> "CHS"
+    company_name <- str_replace(filename, "^(\\d{6}_|_)", "")
+
+    df.tmp <- read_lines(txt) %>%
+      as_tibble() %>%
+      summarise(value = str_c(.data$value, collapse = "\\s")) %>%
+      mutate(
+        name  = company_name,
+        # gvkey: 6-digit prefix from folder name; NA for no-gvkey companies
+        gvkey = str_extract(filename, "^\\d{6}"),
+        year  = as.numeric(year),
+        name  = paste0(.data$name, "_", year)
+      ) %>%
+      # keep rows where gvkey is NA; only drop missing text or year
+      filter(!is.na(.data$value), !is.na(.data$year)) %>%
+      arrange(.data$gvkey, .data$year)
     df_doc <- df_doc %>% bind_rows(df.tmp)
   }
-  
+
   return(df_doc)
 }
-
-parseFilenameFromPath <- function(txt_path) {
-  path_prefix <- glue("{DROPBOX_PATH}/raw_data/Fortune_500_report/")
-  filename <- txt_path %>% 
-    str_replace(fixed(path_prefix), "") %>% 
-    str_extract("\\d+.+?/") %>% 
-    str_remove("/")
-  return(filename)
-}
+# df_test <- readReports(NAICS2_CODE = 11)
+# readReports(NAICS2_CODE = 21)
 
 testParseFilenameFromPath <- function() {
-  testStrings <- c("220 Shaanxi Coal & Chemical Industry/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "191 Alimentation Couche-Tard/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "237 América Móvil/Shaanxi Coal & Chemical Industry AR txt/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "146 Archer Daniels Midland (ADM)/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "148 Xiamen C&D/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "328 Suning.com Group/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "314 J. Sainsbury/Shaanxi Coal & Chemical Industry no AR.txt",
-                   "322 Itaú Unibanco Holding/Shaanxi Coal & Chemical Industry no AR.txt"
+  # Folder naming convention: {6-digit-gvkey}_{name} or _{name}
+  testStrings <- c(
+    "001690_Apple/Apple AR txt/Apple 2021.txt",
+    "019661_Toyota Motor/Toyota AR txt/Toyota 2021.txt",
+    "100737_Volkswagen/Volkswagen 2021.txt",
+    "_CHS/CHS AR txt/CHS 2021.txt",
+    "_Huawei Investment & Holding/Huawei 2021.txt"
   )
-  expectedStrings <- c("220 Shaanxi Coal & Chemical Industry",
-                       "191 Alimentation Couche-Tard",
-                       "237 América Móvil",
-                       "146 Archer Daniels Midland (ADM)",
-                       "148 Xiamen C&D",
-                       "328 Suning.com Group",
-                       "314 J. Sainsbury",
-                       "322 Itaú Unibanco Holding"
+  expectedStrings <- c(
+    "001690_Apple",
+    "019661_Toyota Motor",
+    "100737_Volkswagen",
+    "_CHS",
+    "_Huawei Investment & Holding"
   )
   for (i in seq_along(testStrings)) {
     cat(">>> Test case ", i, "\n")
@@ -123,7 +172,7 @@ testParseFilenameFromPath <- function() {
   cat(">>> All tests pass\n")
 }
 
-testParseFilenameFromPath()
+# testParseFilenameFromPath()
 
 
 getComplementaryIndexKeywords <- function(EXCEL_PATH = "./data/raw_data/Complementarity_independence_pressure_keywords.xlsx"){

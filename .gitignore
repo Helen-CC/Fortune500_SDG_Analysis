@@ -54,3 +54,5 @@ rsconnect/
 
 # to view the progress of keyword count processing
 logs/*
+
+.claude/*

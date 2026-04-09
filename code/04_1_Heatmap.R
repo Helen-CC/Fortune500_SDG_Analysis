@@ -9,14 +9,12 @@ source("./code/config.R", encoding = '')
 #df_final_key 如果要用SDSN 的Keyword改這邊
 # TODO: pick up a set of keywords to use
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
-df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
+
+# IO of annual reports
+df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
+
 
 # Load the NAICS code you want
-## For example:
-## df.doc <- readReports(NAICS2_CODE = 31)
-## df.doc <- readReports(NAICS2_CODE = 21)
-## df.doc <- readReports(NAICS2_CODE = 33)
 NAICS2 <- 21
 # We have name, rank, year, value (the content of the report) in the following datafram
 df.doc <- readReports(NAICS2_CODE = NAICS2)
@@ -35,13 +33,13 @@ df.word <- df.doc %>%
 # Here we compute the total number of words used in the reports for a firm within a year
 # this number is going to be the denominator
 df.wordlen <- df.word %>%
-  group_by(year, rank) %>%
+  group_by(year, gvkey) %>%
   count(name) %>%
   mutate(name = str_replace(name, "\\d+\\s", "")) %>% 
   ungroup()
 df.wordlen <- df.wordlen %>% 
   mutate(name = str_remove(name, "_20\\d{2}")) %>% 
-  group_by(rank, name) %>% 
+  group_by(gvkey, name) %>% 
   summarise(n = sum(n)) %>% 
   ungroup()
 
@@ -50,23 +48,29 @@ df.wordlen <- df.wordlen %>%
 df.word %>% head()
 df_final_key %>% head()
 # TODO: make sure the names of firms are aligned
-df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
+df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds")) %>%
+  mutate(company_name = stringr::str_remove(name, "_\\d+$"),
+         year = stringr::str_extract(name, "\\d{4}$")) %>%
+  mutate(name = company_name) %>%
+  select(-company_name) %>%
+  # attach gvkey
+  left_join(df.Gvkey, by = c("name" = "name"))
 
 df.combine <- df.wordCount %>%
-  left_join(df_final_key, by = c("keyword" = "word")) %>% 
-  mutate(year = as.numeric(str_extract(name, "20\\d+")),
-         name = str_replace(name, "_20\\d+", ""),
-         rank = as.numeric(str_extract(name, "\\d+")),
-         name = str_replace(name, "\\d+\\s", ""))
+  left_join(df_final_key, by = c("keyword" = "word")) #%>% 
+  # mutate(year = as.numeric(str_extract(name, "20\\d+")),
+  #        name = str_replace(name, "_20\\d+", ""),
+  #        # gvkey = as.numeric(str_extract(name, "\\d+")),
+  #        name = str_replace(name, "\\d+\\s", "")) 
 
 
 ## Find the numerator regardless of year
 ## the group's primary key is firm's name and SDG category
 df.long <- df.combine %>% 
   filter(n_keyword > 0) %>%
-  group_by(rank, name, sdg) %>% 
+  group_by(gvkey, name, sdg) %>% 
   summarise(n_keyword = sum(n_keyword),
-            rank = head(rank, 1)
+            gvkey = head(gvkey, 1)
             ) %>% 
   ungroup()
 
@@ -88,11 +92,11 @@ df.long <- df.combine %>%
 # \end{align*}
 
 df.long_join <- df.long %>% 
-  left_join(df.wordlen, by = c("rank", "name")) %>%
+  left_join(df.wordlen, by = c("gvkey", "name")) %>%
   # sum keyword mention_{ijt} over t / sum total word in doc_{ijt} over t
   mutate(per_keyword = n_keyword/n) %>%
   # sum keyword mention alt_{ijt} over t / sum total keyword in doc_{ijt} over jt 
-  group_by(rank, name) %>%
+  group_by(gvkey, name) %>%
   mutate(n_alt = sum(n_keyword),
          per_keyword_alt = n_keyword / n_alt) %>%
   ungroup()
@@ -111,7 +115,7 @@ df.plot <- df.long_join %>%
 ## assign factor level to the names
 df.plot <- df.plot %>% 
   # put NAICS code back by merging two dataframe
-  left_join(df.RankCode %>% select(-name), by = c('rank')) %>% 
+  left_join(df.Gvkey %>% select(-name), by = c('gvkey')) %>% 
   # mutate(name = paste0(name, " ", naics)) %>% 
   mutate(name = as_factor(name)) %>% 
   mutate(name = fct_reorder(name, naics))
@@ -121,107 +125,95 @@ df.plot <- df.plot %>%
 df.plot$name %>% unique()
 
 
-# sort companies by NAICS code
-p1 <- df.plot %>%
-  ggplot(aes(x = name, y = sdg, fill = per_keyword)) + 
-  # grid plot
-  geom_tile() +
-  coord_flip() +
-  #theme_bw() +
-  #theme_minimal() +
-  theme_linedraw() +
-  scale_linetype(guide = "none") +
-  scale_fill_gradient(low = "snow", high = "red3", # change color
-                      labels = scales::percent
-                      #breaks=c(0, 1) # breaks indicate percentile
-  ) +
-  labs(x = "Company", y = "SDG", 
-       title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "Percentage (%)") +
-  # fill in colors in blank grids
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        #axis.line = element_line(colour = "black") #axis line bold and black
-        ) +
-  theme(legend.position="bottom",
-        #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 16),
-        #這兩行調圖片title字大小
-        plot.title = element_text(size = 24),
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 18)) #+
-  
-# set font
-  # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
-  #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
-  #       text = element_text(family = "Noto Sans CJK TC Medium"))
-p1
+## Paginated save: split into pages when there are too many companies
+## Each company = 1 row in the heatmap, so height scales with n_companies
+companies_per_page <- 30     # companies per page
+height_per_company <- 0.45   # inches per company row
+height_padding     <- 3      # inches for title, legend, axes
 
-## Save plot
-p1 %>% 
-  ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2, ".png"), 
-         device = "png",
-         dpi = 600, 
-         units = "in",
-         # 調圖片長寬比（圖片大小）
-         height = 9, width = 19)
+companies   <- levels(df.plot$name)
+n_companies <- length(companies)
 
-#' @section denominator is the sum of all SDG keywords instead of number of words in the doc
-# sort companies by NAICS code
-p2 <- df.plot %>%
-  ggplot(aes(x = name, y = sdg, fill = per_keyword_alt)) + 
-  # grid plot
-  geom_tile() +
-  coord_flip() +
-  #theme_bw() +
-  #theme_minimal() +
-  theme_linedraw() +
-  scale_linetype(guide = "none") +
-  scale_fill_gradient(low = "snow", high = "navy", # change color
-                      labels = scales::percent
-                      #breaks=c(0, 1) # breaks indicate percentile
-  ) +
-  labs(x = "Company", y = "SDG", 
-       title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "Percentage") +
-  # fill in colors in blank grids
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        #axis.line = element_line(colour = "black") #axis line bold and black
-        ) +
-  # theme(legend.position="bottom",
-  #       #這兩行調x y 軸字大小
-  #       axis.text.y = element_text(size = 12),
-  #       axis.text.x = element_text(size = 12)) #+
-  theme(legend.position="bottom",
-        #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 16),
-        #這兩行調圖片title字大小
-        plot.title = element_text(size = 24),
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 18)) #+
+pages <- split(companies,
+               ceiling(seq_along(companies) / companies_per_page))
 
-# set font
-  # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
-  #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
-  #       text = element_text(family = "Noto Sans CJK TC Medium"))
-p2
+for (page_i in seq_along(pages)) {
+  page_companies <- pages[[page_i]]
+  n_this_page    <- length(page_companies)
+  plot_height    <- n_this_page * height_per_company + height_padding
 
-## Save plot
-p2 %>% 
-  ggsave(filename = paste0("./data/result/fig_heatmap_alt_NAICS", NAICS2, ".png"), 
-         device = "png",
-         dpi = 600, 
-         units = "in",
-         # 調圖片長寬比（圖片大小）
-         height = 9, width = 19)
+  df.page <- df.plot %>%
+    filter(name %in% page_companies) %>%
+    droplevels() %>%
+    mutate(name = fct_reorder(name, naics))
+
+  suffix <- if (length(pages) > 1) glue("_p{page_i}") else ""
+
+  # p1: denominator = total words in doc
+  p1 <- df.page %>%
+    ggplot(aes(x = name, y = sdg, fill = per_keyword)) +
+    geom_tile() +
+    coord_flip() +
+    theme_linedraw() +
+    scale_linetype(guide = "none") +
+    scale_fill_gradient(low = "snow", high = "red3",
+                        labels = scales::percent) +
+    labs(x = "Company", y = "SDG",
+         title = "Mining, Quarrying, and Oil and Gas Extraction",
+         fill = "Percentage (%)") +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank()) +
+    theme(legend.position = "bottom",
+          axis.text.y     = element_text(size = 18),
+          axis.text.x     = element_text(size = 16),
+          plot.title      = element_text(size = 24),
+          axis.title.x    = element_text(size = 20),
+          axis.title.y    = element_text(size = 20),
+          legend.text     = element_text(size = 9),
+          legend.title    = element_text(size = 18))
+
+  ggsave(
+    plot     = p1,
+    filename = glue(
+      "./data/result/fig_heatmap_NAICS{NAICS2}{suffix}.png"
+    ),
+    device = "png", dpi = 600, units = "in",
+    height = plot_height, width = 19
+  )
+
+  #' @section denominator = sum of all SDG keywords (not total words)
+  p2 <- df.page %>%
+    ggplot(aes(x = name, y = sdg, fill = per_keyword_alt)) +
+    geom_tile() +
+    coord_flip() +
+    theme_linedraw() +
+    scale_linetype(guide = "none") +
+    scale_fill_gradient(low = "snow", high = "navy",
+                        labels = scales::percent) +
+    labs(x = "Company", y = "SDG",
+         title = "Mining, Quarrying, and Oil and Gas Extraction",
+         fill = "Percentage") +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank()) +
+    theme(legend.position = "bottom",
+          axis.text.y     = element_text(size = 18),
+          axis.text.x     = element_text(size = 16),
+          plot.title      = element_text(size = 24),
+          axis.title.x    = element_text(size = 20),
+          axis.title.y    = element_text(size = 20),
+          legend.text     = element_text(size = 9),
+          legend.title    = element_text(size = 18))
+
+  ggsave(
+    plot     = p2,
+    filename = glue(
+      "./data/result/fig_heatmap_alt_NAICS{NAICS2}{suffix}.png"
+    ),
+    device = "png", dpi = 600, units = "in",
+    height = plot_height, width = 19
+  )
+}
 
 

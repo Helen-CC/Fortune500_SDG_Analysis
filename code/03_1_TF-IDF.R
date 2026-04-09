@@ -9,11 +9,10 @@ source("./code/utils/weakWords.R")
 source("./code/config.R", encoding = '')
 
 # Load keywords
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
 # IO of annual reports
-df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
+df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
 
 ## A BETTER WAY TO SELECT NAICS STARTING WITH XX
 ## TODO: Change the following code if needed
@@ -48,32 +47,49 @@ df.words <- df.words %>%
   mutate(name = factor(name, levels = unique(df.words$name)))
 
 ## Plot
-df.plot <- df.words %>% 
-  select(name, word, tf_idf) %>% 
-  # operation within groups
-  group_by(name) %>% 
-  arrange(desc(tf_idf)) %>% 
-  slice_max(tf_idf, n = 10) %>% 
-  mutate(word = forcats::fct_reorder(word, tf_idf)) %>%
-  ungroup()
+df.plot <- df.words %>%
+  select(name, word, tf_idf) %>%
+  group_by(name) %>%
+  slice_max(tf_idf, n = 10) %>%
+  ungroup() %>%
+  # reorder_within creates unique "word___name" levels
+  # so each facet sorts independently
+  mutate(word = tidytext::reorder_within(word, tf_idf, name))
 
-# coz we have same words appears in different comapanies, assigning factors won't work to sort the bins
-str(df.plot)
-df.plot %>% filter(name == "34 Glencore") %>% mutate(tmp = as.numeric(word))
-df.plot %>% filter(word == 'copper')
+## Paginated save: split into pages when there are too many companies
+companies          <- levels(droplevels(df.plot$name))
+n_companies        <- length(companies)
+companies_per_page <- 20   # 10 rows × 2 cols
+height_per_row     <- 3    # inches per panel row
 
-p1 <- df.plot %>%
-  ggplot(aes(tf_idf, word, fill = name)) +
-  geom_col(show.legend = FALSE) +
-  labs(x = "TF-IDF", y = NULL) +
-  facet_wrap(~name, ncol = 2, scales = "free")
-p1
+pages <- split(companies,
+               ceiling(seq_along(companies) / companies_per_page))
 
-## Save plot
-p1 %>% 
-  ggsave(filename = "./data/result/fig_Tf-IDF_NAICS_21.png", 
-         device = "png",
-         dpi = 300, 
-         units = "in",
-         height = 12, width = 12)
+for (page_i in seq_along(pages)) {
+  page_companies <- pages[[page_i]]
+  n_this_page    <- length(page_companies)
+  plot_height    <- ceiling(n_this_page / 2) * height_per_row
+
+  p <- df.plot %>%
+    filter(name %in% page_companies) %>%
+    droplevels() %>%
+    ggplot(aes(tf_idf, word, fill = name)) +
+    geom_col(show.legend = FALSE) +
+    labs(x = "TF-IDF", y = NULL) +
+    facet_wrap(~name, ncol = 2, scales = "free") +
+    tidytext::scale_y_reordered()
+
+  suffix <- if (length(pages) > 1) glue("_p{page_i}") else ""
+  ggsave(
+    plot     = p,
+    filename = glue(
+      "./data/result/fig_Tf-IDF_NAICS_{NAICS2_CODE}{suffix}.png"
+    ),
+    device = "png",
+    dpi    = 300,
+    units  = "in",
+    width  = 12,
+    height = plot_height
+  )
+}
 
