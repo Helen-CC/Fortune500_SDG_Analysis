@@ -9,14 +9,12 @@ source("./code/config.R", encoding = '')
 #df_final_key 如果要用SDSN 的Keyword改這邊
 # TODO: pick up a set of keywords to use
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.rds"))
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key.rds")
-df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
+
+# IO of annual reports
+df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
+
 
 # Load the NAICS code you want
-## For example:
-## df.doc <- readReports(NAICS2_CODE = 31)
-## df.doc <- readReports(NAICS2_CODE = 21)
-## df.doc <- readReports(NAICS2_CODE = 33)
 NAICS2 <- 21
 # We have name, rank, year, value (the content of the report) in the following datafram
 df.doc <- readReports(NAICS2_CODE = NAICS2)
@@ -35,13 +33,13 @@ df.word <- df.doc %>%
 # Here we compute the total number of words used in the reports for a firm within a year
 # this number is going to be the denominator
 df.wordlen <- df.word %>%
-  group_by(year, rank) %>%
+  group_by(year, gvkey) %>%
   count(name) %>%
   mutate(name = str_replace(name, "\\d+\\s", "")) %>% 
   ungroup()
 df.wordlen <- df.wordlen %>% 
   mutate(name = str_remove(name, "_20\\d{2}")) %>% 
-  group_by(rank, name) %>% 
+  group_by(gvkey, name) %>% 
   summarise(n = sum(n)) %>% 
   ungroup()
 
@@ -50,23 +48,29 @@ df.wordlen <- df.wordlen %>%
 df.word %>% head()
 df_final_key %>% head()
 # TODO: make sure the names of firms are aligned
-df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds"))
+df.wordCount <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_wordCount_NAICS", NAICS2, ".rds")) %>%
+  mutate(company_name = stringr::str_remove(name, "_\\d+$"),
+         year = stringr::str_extract(name, "\\d{4}$")) %>%
+  mutate(name = company_name) %>%
+  select(-company_name) %>%
+  # attach gvkey
+  left_join(df.Gvkey, by = c("name" = "name"))
 
 df.combine <- df.wordCount %>%
-  left_join(df_final_key, by = c("keyword" = "word")) %>% 
-  mutate(year = as.numeric(str_extract(name, "20\\d+")),
-         name = str_replace(name, "_20\\d+", ""),
-         rank = as.numeric(str_extract(name, "\\d+")),
-         name = str_replace(name, "\\d+\\s", ""))
+  left_join(df_final_key, by = c("keyword" = "word")) #%>% 
+  # mutate(year = as.numeric(str_extract(name, "20\\d+")),
+  #        name = str_replace(name, "_20\\d+", ""),
+  #        # gvkey = as.numeric(str_extract(name, "\\d+")),
+  #        name = str_replace(name, "\\d+\\s", "")) 
 
 
 ## Find the numerator regardless of year
 ## the group's primary key is firm's name and SDG category
 df.long <- df.combine %>% 
   filter(n_keyword > 0) %>%
-  group_by(rank, name, sdg) %>% 
+  group_by(gvkey, name, sdg) %>% 
   summarise(n_keyword = sum(n_keyword),
-            rank = head(rank, 1)
+            gvkey = head(gvkey, 1)
             ) %>% 
   ungroup()
 
@@ -88,11 +92,11 @@ df.long <- df.combine %>%
 # \end{align*}
 
 df.long_join <- df.long %>% 
-  left_join(df.wordlen, by = c("rank", "name")) %>%
+  left_join(df.wordlen, by = c("gvkey", "name")) %>%
   # sum keyword mention_{ijt} over t / sum total word in doc_{ijt} over t
   mutate(per_keyword = n_keyword/n) %>%
   # sum keyword mention alt_{ijt} over t / sum total keyword in doc_{ijt} over jt 
-  group_by(rank, name) %>%
+  group_by(gvkey, name) %>%
   mutate(n_alt = sum(n_keyword),
          per_keyword_alt = n_keyword / n_alt) %>%
   ungroup()
@@ -111,7 +115,7 @@ df.plot <- df.long_join %>%
 ## assign factor level to the names
 df.plot <- df.plot %>% 
   # put NAICS code back by merging two dataframe
-  left_join(df.RankCode %>% select(-name), by = c('rank')) %>% 
+  left_join(df.Gvkey %>% select(-name), by = c('gvkey')) %>% 
   # mutate(name = paste0(name, " ", naics)) %>% 
   mutate(name = as_factor(name)) %>% 
   mutate(name = fct_reorder(name, naics))
