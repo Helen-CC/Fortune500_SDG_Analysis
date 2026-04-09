@@ -57,7 +57,8 @@ df_fx <- read_csv(
 # convert currencies using FX data
 firm_characteristics_glob %>% colnames()
 firm_characteristics_glob <- firm_characteristics_glob %>%
-  select(gvkey, fyear, conm, curcd, at, emp, revt, naics, sic, datadate) %>%
+  select(gvkey, fyear, conm, curcd, at, emp, revt,
+         roa, ros, tobin_q, naics, sic, datadate) %>%
   left_join(df_fx,
             join_by(closest(datadate <= datadate)))
 
@@ -90,12 +91,14 @@ firm_characteristics_glob_converted <- firm_characteristics_glob %>%
 
 firm_characteristics_glob_converted %>% colnames()
 firm_characteristics_glob_converted <- firm_characteristics_glob_converted %>%
-  select(gvkey, fyear, conm, at, revt, emp, naics, sic)
+  select(gvkey, fyear, conm, at, revt, emp,
+         roa, ros, tobin_q, naics, sic)
 
 
 # Merge US, global firm characteristics with keyword counts
 df_merged <- firm_characteristics_us %>%
-  select(gvkey, fyear, conm, at, revt, emp, naics, sic) %>%
+  select(gvkey, fyear, conm, at, revt, emp,
+         roa, ros, tobin_q, naics, sic) %>%
   full_join(firm_characteristics_glob_converted) %>%
   distinct() %>%
   # label the dupes
