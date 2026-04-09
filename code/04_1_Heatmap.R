@@ -125,107 +125,95 @@ df.plot <- df.plot %>%
 df.plot$name %>% unique()
 
 
-# sort companies by NAICS code
-p1 <- df.plot %>%
-  ggplot(aes(x = name, y = sdg, fill = per_keyword)) + 
-  # grid plot
-  geom_tile() +
-  coord_flip() +
-  #theme_bw() +
-  #theme_minimal() +
-  theme_linedraw() +
-  scale_linetype(guide = "none") +
-  scale_fill_gradient(low = "snow", high = "red3", # change color
-                      labels = scales::percent
-                      #breaks=c(0, 1) # breaks indicate percentile
-  ) +
-  labs(x = "Company", y = "SDG", 
-       title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "Percentage (%)") +
-  # fill in colors in blank grids
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        #axis.line = element_line(colour = "black") #axis line bold and black
-        ) +
-  theme(legend.position="bottom",
-        #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 16),
-        #這兩行調圖片title字大小
-        plot.title = element_text(size = 24),
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 18)) #+
-  
-# set font
-  # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
-  #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
-  #       text = element_text(family = "Noto Sans CJK TC Medium"))
-p1
+## Paginated save: split into pages when there are too many companies
+## Each company = 1 row in the heatmap, so height scales with n_companies
+companies_per_page <- 30     # companies per page
+height_per_company <- 0.45   # inches per company row
+height_padding     <- 3      # inches for title, legend, axes
 
-## Save plot
-p1 %>% 
-  ggsave(filename = paste0("./data/result/fig_heatmap_NAICS", NAICS2, ".png"), 
-         device = "png",
-         dpi = 600, 
-         units = "in",
-         # 調圖片長寬比（圖片大小）
-         height = 9, width = 19)
+companies   <- levels(df.plot$name)
+n_companies <- length(companies)
 
-#' @section denominator is the sum of all SDG keywords instead of number of words in the doc
-# sort companies by NAICS code
-p2 <- df.plot %>%
-  ggplot(aes(x = name, y = sdg, fill = per_keyword_alt)) + 
-  # grid plot
-  geom_tile() +
-  coord_flip() +
-  #theme_bw() +
-  #theme_minimal() +
-  theme_linedraw() +
-  scale_linetype(guide = "none") +
-  scale_fill_gradient(low = "snow", high = "navy", # change color
-                      labels = scales::percent
-                      #breaks=c(0, 1) # breaks indicate percentile
-  ) +
-  labs(x = "Company", y = "SDG", 
-       title = "Mining, Quarrying, and Oil and Gas Extraction", 
-       fill = "Percentage") +
-  # fill in colors in blank grids
-  theme(panel.grid.major = element_blank(), 
-        panel.grid.minor = element_blank(),
-        panel.background = element_blank(), 
-        #axis.line = element_line(colour = "black") #axis line bold and black
-        ) +
-  # theme(legend.position="bottom",
-  #       #這兩行調x y 軸字大小
-  #       axis.text.y = element_text(size = 12),
-  #       axis.text.x = element_text(size = 12)) #+
-  theme(legend.position="bottom",
-        #這兩行調x y 軸字大小
-        axis.text.y = element_text(size = 18),
-        axis.text.x = element_text(size = 16),
-        #這兩行調圖片title字大小
-        plot.title = element_text(size = 24),
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        legend.text = element_text(size = 9),
-        legend.title = element_text(size = 18)) #+
+pages <- split(companies,
+               ceiling(seq_along(companies) / companies_per_page))
 
-# set font
-  # theme(plot.title = element_text(family = "Noto Sans CJK TC Medium", face = "plain", size = 18),
-  #       legend.text = element_text(family = "Noto Sans CJK TC Medium", face = "plain"), 
-  #       text = element_text(family = "Noto Sans CJK TC Medium"))
-p2
+for (page_i in seq_along(pages)) {
+  page_companies <- pages[[page_i]]
+  n_this_page    <- length(page_companies)
+  plot_height    <- n_this_page * height_per_company + height_padding
 
-## Save plot
-p2 %>% 
-  ggsave(filename = paste0("./data/result/fig_heatmap_alt_NAICS", NAICS2, ".png"), 
-         device = "png",
-         dpi = 600, 
-         units = "in",
-         # 調圖片長寬比（圖片大小）
-         height = 9, width = 19)
+  df.page <- df.plot %>%
+    filter(name %in% page_companies) %>%
+    droplevels() %>%
+    mutate(name = fct_reorder(name, naics))
+
+  suffix <- if (length(pages) > 1) glue("_p{page_i}") else ""
+
+  # p1: denominator = total words in doc
+  p1 <- df.page %>%
+    ggplot(aes(x = name, y = sdg, fill = per_keyword)) +
+    geom_tile() +
+    coord_flip() +
+    theme_linedraw() +
+    scale_linetype(guide = "none") +
+    scale_fill_gradient(low = "snow", high = "red3",
+                        labels = scales::percent) +
+    labs(x = "Company", y = "SDG",
+         title = "Mining, Quarrying, and Oil and Gas Extraction",
+         fill = "Percentage (%)") +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank()) +
+    theme(legend.position = "bottom",
+          axis.text.y     = element_text(size = 18),
+          axis.text.x     = element_text(size = 16),
+          plot.title      = element_text(size = 24),
+          axis.title.x    = element_text(size = 20),
+          axis.title.y    = element_text(size = 20),
+          legend.text     = element_text(size = 9),
+          legend.title    = element_text(size = 18))
+
+  ggsave(
+    plot     = p1,
+    filename = glue(
+      "./data/result/fig_heatmap_NAICS{NAICS2}{suffix}.png"
+    ),
+    device = "png", dpi = 600, units = "in",
+    height = plot_height, width = 19
+  )
+
+  #' @section denominator = sum of all SDG keywords (not total words)
+  p2 <- df.page %>%
+    ggplot(aes(x = name, y = sdg, fill = per_keyword_alt)) +
+    geom_tile() +
+    coord_flip() +
+    theme_linedraw() +
+    scale_linetype(guide = "none") +
+    scale_fill_gradient(low = "snow", high = "navy",
+                        labels = scales::percent) +
+    labs(x = "Company", y = "SDG",
+         title = "Mining, Quarrying, and Oil and Gas Extraction",
+         fill = "Percentage") +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.background = element_blank()) +
+    theme(legend.position = "bottom",
+          axis.text.y     = element_text(size = 18),
+          axis.text.x     = element_text(size = 16),
+          plot.title      = element_text(size = 24),
+          axis.title.x    = element_text(size = 20),
+          axis.title.y    = element_text(size = 20),
+          legend.text     = element_text(size = 9),
+          legend.title    = element_text(size = 18))
+
+  ggsave(
+    plot     = p2,
+    filename = glue(
+      "./data/result/fig_heatmap_alt_NAICS{NAICS2}{suffix}.png"
+    ),
+    device = "png", dpi = 600, units = "in",
+    height = plot_height, width = 19
+  )
+}
 
 
