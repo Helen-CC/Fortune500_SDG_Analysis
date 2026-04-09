@@ -9,15 +9,14 @@ source("./code/utils/weakWords.R")
 source("./code/config.R", encoding = '')
 
 # Load keywords
-# df_final_key <- read_rds("./data/cleaned_data/df_final_key_all.rds")
 df_final_key <- read_rds(glue("{DROPBOX_PATH}/cleaned_data/df_final_key_all.RDS"))
 
 # IO of annual reports
-df.RankCode <- getRankCodeMap("./data/raw_data/TM Final_FortuneG500 (2021)_v2.xlsx")
+df.Gvkey <- getGvkeyMap(glue("{DROPBOX_PATH}/company_reference/company_reference_master.xlsx"))
 
 ## A BETTER WAY TO SELECT NAICS STARTING WITH XX
 ## TODO: Change the following code if needed
-NAICS2_CODE <- 21
+NAICS2_CODE <- 22
 df.doc <- readReports(NAICS2_CODE)
 
 
@@ -48,25 +47,21 @@ df.words <- df.words %>%
   mutate(name = factor(name, levels = unique(df.words$name)))
 
 ## Plot
-df.plot <- df.words %>% 
-  select(name, word, tf_idf) %>% 
-  # operation within groups
-  group_by(name) %>% 
-  arrange(desc(tf_idf)) %>% 
-  slice_max(tf_idf, n = 10) %>% 
-  mutate(word = forcats::fct_reorder(word, tf_idf)) %>%
-  ungroup()
-
-# coz we have same words appears in different comapanies, assigning factors won't work to sort the bins
-str(df.plot)
-df.plot %>% filter(name == "34 Glencore") %>% mutate(tmp = as.numeric(word))
-df.plot %>% filter(word == 'copper')
+df.plot <- df.words %>%
+  select(name, word, tf_idf) %>%
+  group_by(name) %>%
+  slice_max(tf_idf, n = 10) %>%
+  ungroup() %>%
+  # reorder_within creates unique "word___name" levels
+  # so each facet sorts independently
+  mutate(word = tidytext::reorder_within(word, tf_idf, name))
 
 p1 <- df.plot %>%
   ggplot(aes(tf_idf, word, fill = name)) +
   geom_col(show.legend = FALSE) +
   labs(x = "TF-IDF", y = NULL) +
-  facet_wrap(~name, ncol = 2, scales = "free")
+  facet_wrap(~name, ncol = 2, scales = "free") +
+  tidytext::scale_y_reordered()
 p1
 
 ## Save plot
